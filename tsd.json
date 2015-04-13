@@ -1,0 +1,27 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "jquery/jquery.d.ts": {
+      "commit": "f87a6264784613ee49f316c8addb94e355e140e4"
+    },
+    "howlerjs/howler.d.ts": {
+      "commit": "f87a6264784613ee49f316c8addb94e355e140e4"
+    },
+    "angularjs/angular.d.ts": {
+      "commit": "f87a6264784613ee49f316c8addb94e355e140e4"
+    },
+    "threejs/three.d.ts": {
+      "commit": "b0056383b51495b373a32b791de8112fcafe2ace"
+    },
+    "webaudioapi/waa.d.ts": {
+      "commit": "b0056383b51495b373a32b791de8112fcafe2ace"
+    },
+    "webrtc/MediaStream.d.ts": {
+      "commit": "b0056383b51495b373a32b791de8112fcafe2ace"
+    }
+  }
+}

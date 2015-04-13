@@ -1,0 +1,31 @@
+@import 'bourbon';
+
+$hpadding: 2rem;
+$vpadding: 1.5rem;
+$borderColor: #334;
+
+* {
+  @include box-sizing(border-box);
+  outline: 0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+}
