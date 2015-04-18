@@ -1,6 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="player.ts" />
+/// <reference path="sky.ts" />
 /// <reference path="terrain.ts" />
 
 class Game {
@@ -9,9 +10,9 @@ class Game {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
 
+  private sky: Sky;
   private terrain: Terrain;
   private player: Player;
-  private cube: THREE.Mesh;
 
   constructor() {
     this.renderer = new THREE.WebGLRenderer();
@@ -22,7 +23,7 @@ class Game {
 
     this.scene = new THREE.Scene();
 
-    this.scene.fog = new THREE.Fog(0xc0c0c0, 0.1, VIEW_DISTANCE);
+    this.scene.fog = new THREE.Fog(0xaa8a5e, 0.1, VIEW_DISTANCE);
 
     var ambientLight = new THREE.AmbientLight(0x404040);
     this.scene.add(ambientLight);
@@ -40,10 +41,7 @@ class Game {
     // light.shadowMapHeight = 1024;
     this.scene.add(light);
 
-    var sky = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000, 1, 1), new THREE.MeshBasicMaterial({color: 0xa0b0ff}));
-    sky.position.y = 100;
-    sky.rotation.x = Math.PI/2;
-    this.scene.add(sky);
+    this.sky = new Sky(this.camera);
 
     this.terrain = new Terrain(this.scene, this.camera);
 
@@ -61,6 +59,7 @@ class Game {
 
   update(delta) {
     this.terrain.update();
+    this.sky.update();
     this.player.update(delta);
   }
 

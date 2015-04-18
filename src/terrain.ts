@@ -97,7 +97,7 @@ class Tile {
     geo.dynamic = false;
 
     this.mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({
-      color: 0x40e010,
+      color: 0xaa7a39,
       shading: THREE.FlatShading,
     }));
     this.mesh.position.x = this.x;

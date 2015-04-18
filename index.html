@@ -9,6 +9,7 @@
   <body>
     <div id="canvas">
     </div>
+
     <div id="instructions" class="fullscreen overlay vcenter fade">
       <div class="instructions">
         Mouse to look<br>
@@ -22,11 +23,34 @@
         LD32 is an <a href="http://www.ludumdare.com/compo/ludum-dare-32/?action=preview&uid=7882">entry</a> for the <a href="http://ludumdare.com/compo/">Ludum Dare</a> <a href="http://www.ludumdare.com/compo/ludum-dare-32/">32</a> Compo by <a href="http://twitter.com/frozenfractal">@frozenfractal</a>.
       </footer>
     </div>
+
     <div id="loading" class="fullscreen black vcenter fade">
       <div class="instructions">
         Loading&hellip;
       </div>
     </div>
+
+    <script type="application/x-glsl" id="sky-vertex">
+      varying vec3 dir;
+
+      void main() {
+        dir = position.xyz;
+        vec4 pos = vec4(position, 1.0);
+        gl_Position = projectionMatrix * modelViewMatrix * pos;
+      }
+    </script>
+    <script type="application/x-glsl" id="sky-fragment">
+      varying vec3 dir;
+
+      void main() {
+        vec3 d = normalize(dir);
+        gl_FragColor = mix(
+            vec4(0.66666, 0.54118, 0.36863, 1.0),
+            vec4(0.66666, 0.28235, 0.22353, 1.0),
+            clamp(d.y * 2.0, 0.0, 1.0));
+      }
+    </script>
+
     <script src="howler.min.js"></script>
     <script src="three.min.js"></script>
     <script src="main.js"></script>
