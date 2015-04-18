@@ -1,14 +1,27 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
+/// <reference path="lightning.ts" />
 
 const up = new THREE.Vector3(0, 1, 0);
+
+enum CloudState {
+  IDLE,
+  CHARGING,
+  DISCHARGING,
+  COOLDOWN,
+}
 
 class Cloud {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
-  private spot: THREE.SpotLight;
   private velocity: THREE.Vector3 = new THREE.Vector3();
   private rotationSpeed: number;
+
+  private state: CloudState = CloudState.IDLE;
+  private charge: number;
+  private cooldown: number;
+
+  private lightning: Lightning;
 
   constructor(x: number, z: number, private player: Player, private terrain: Terrain) {
     this.velocity.set(0, 0, -CLOUD_SPEED);
@@ -45,16 +58,9 @@ class Cloud {
     light.shadowCameraBottom = -20;
     this.obj.add(light);
 
-    var spotTarget = new THREE.Object3D();
-    spotTarget.position.set(0, -100, 0);
-    this.obj.add(spotTarget);
-
-    this.spot = new THREE.SpotLight(0xffffff, 2.0);
-    this.spot.position.set(0, -10, 0);
-    this.spot.target = spotTarget;
-    this.spot.angle = 0.3 * Math.PI/2;
-    this.spot.exponent = 100.0;
-    this.obj.add(this.spot);
+    this.lightning = new Lightning(new THREE.Vector3(0, -CLOUD_HEIGHT, 0));
+    this.lightning.setVisible(false);
+    this.obj.add(this.lightning.getObject());
   }
 
   getObject(): THREE.Object3D {
@@ -70,10 +76,10 @@ class Cloud {
     var dz = player.z - pos.z;
     var d = dx * v.z - dz * v.x;
     if (d < 0) {
-      this.rotationSpeed -= 0.1;
+      this.rotationSpeed -= delta * CLOUD_ROTATE_ACCEL;
       v.applyAxisAngle(up, -delta * CLOUD_TURN_SPEED);
     } else {
-      this.rotationSpeed += 0.1;
+      this.rotationSpeed += delta * CLOUD_ROTATE_ACCEL;
       v.applyAxisAngle(up, delta * CLOUD_TURN_SPEED);
     }
     v.setLength(CLOUD_SPEED);
@@ -86,8 +92,39 @@ class Cloud {
     pos.y = Math.max(h + MIN_CLOUD_HEIGHT, pos.y + delta * v.y);
     pos.z += delta * v.z;
 
-    this.mesh.rotation.z += delta * this.rotationSpeed;
+    switch (this.state) {
+      case CloudState.IDLE:
+        if (pos.distanceTo(player) < CLOUD_SPEED * CLOUD_CHARGE_TIME) {
+          this.state = CloudState.CHARGING;
+          this.charge = 0;
+        }
+        break;
+      case CloudState.CHARGING:
+        this.charge += delta / CLOUD_CHARGE_TIME;
+        if (this.charge >= 1) {
+          this.lightning.setVisible(true);
+          this.state = CloudState.DISCHARGING;
+          this.charge = 1;
+        }
+        break;
+      case CloudState.DISCHARGING:
+        this.charge -= delta / CLOUD_DISCHARGE_TIME;
+        if (this.charge <= 0) {
+          this.lightning.setVisible(false);
+          this.state = CloudState.COOLDOWN;
+          this.cooldown = 1;
+        }
+        break;
+      case CloudState.COOLDOWN:
+        this.cooldown -= delta / CLOUD_COOLDOWN_TIME;
+        if (this.cooldown <= 0) {
+          this.state = CloudState.IDLE;
+        }
+        break;
+    }
 
-    this.spot.intensity = 1.5 + Math.random();
+    this.mesh.rotation.z += delta * this.rotationSpeed * (1 + 30 * this.charge);
+
+    this.lightning.update(delta);
   }
 }
