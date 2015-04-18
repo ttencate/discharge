@@ -29,7 +29,7 @@ class Game {
     this.scene.add(ambientLight);
 
     var light = new THREE.DirectionalLight(0xc0c0c0, 1.0);
-    light.position.set(1, 1, 1);
+    light.position.set(-5, 1, 0);
     // light.castShadow = true;
     // light.shadowCameraNear = 0.1;
     // light.shadowCameraFar = 100;

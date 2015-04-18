@@ -44,10 +44,12 @@
 
       void main() {
         vec3 d = normalize(dir);
+        float sun = max(0.0, dot(d, normalize(vec3(-5.0, 1.0, 0.0))));
         gl_FragColor = mix(
             vec4(0.66666, 0.54118, 0.36863, 1.0),
             vec4(0.66666, 0.28235, 0.22353, 1.0),
-            clamp(d.y * 2.0, 0.0, 1.0));
+            clamp(0.5 * d.y + 0.1 * d.x, 0.0, 1.0)) +
+            1.5 * pow(sun, 20.0) * vec4(0.66666, 0.54118, 0.36863, 1.0);
       }
     </script>
 
