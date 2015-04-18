@@ -1,4 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="player.ts" />
+/// <reference path="terrain.ts" />
 
 var PI_2 = Math.PI / 2;
 var GRAVITY = 9.81;
@@ -17,6 +19,8 @@ class Game {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private clock: THREE.Clock;
+
+  private terrain: Terrain;
   private player: Player;
   private cube: THREE.Mesh;
 
@@ -48,23 +52,26 @@ class Game {
     light.shadowMapHeight = 1024;
     this.scene.add(light);
 
-    this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({color: 0xff8000}));
-    this.cube.position.y = 1.0;
-    this.cube.position.z = -3.0;
-    this.cube.castShadow = true;
-    this.scene.add(this.cube);
-
-    var ground = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000, 1, 1), new THREE.MeshPhongMaterial({color: 0x40e010}));
-    ground.rotation.x = -Math.PI/2;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
+    for (var z = -6; z <= -2; z += 2) {
+      for (var x = -2; x <= 2; x += 2) {
+        var h = 2.0 * Math.random();
+        this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, h, 1), new THREE.MeshPhongMaterial({color: 0xff8000}));
+        this.cube.position.x = x;
+        this.cube.position.y = h/2;
+        this.cube.position.z = z;
+        this.cube.castShadow = true;
+        this.scene.add(this.cube);
+      }
+    }
 
     var sky = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000, 1, 1), new THREE.MeshBasicMaterial({color: 0xa0b0ff}));
     sky.position.y = 6;
     sky.rotation.x = Math.PI/2;
     this.scene.add(sky);
 
-    this.player = new Player(this.scene, this.camera);
+    this.terrain = new Terrain(this.scene, this.camera);
+
+    this.player = new Player(this.scene, this.camera, this.terrain);
   }
 
   resize() {
@@ -76,6 +83,7 @@ class Game {
   render() {
     var delta = this.clock.getDelta();
 
+    this.terrain.update();
     this.player.update(delta);
 
     this.renderer.render(this.scene, this.camera);
@@ -83,117 +91,6 @@ class Game {
 
   setControlsEnabled(enabled: boolean) {
     this.player.setControlsEnabled(enabled);
-  }
-}
-
-class Player {
-  private pitchObject: THREE.Object3D;
-  private yawObject: THREE.Object3D;
-  private velocity: THREE.Vector3 = new THREE.Vector3();
-
-  private controlsEnabled: boolean;
-  private mouseMoveHandler: any;
-  private keyDownHandler: any;
-  private keyUpHandler: any;
-  private keysDown: {[key: number]: boolean} = {};
-
-  private onGround: boolean;
-
-  constructor(scene: THREE.Scene, camera: THREE.Camera) {
-    camera.rotation.set(0, 0, 0);
-
-    this.pitchObject = new THREE.Object3D();
-    this.pitchObject.position.y = 1.0;
-    this.pitchObject.add(camera);
-
-    this.yawObject = new THREE.Object3D();
-    this.yawObject.add(this.pitchObject);
-
-    scene.add(this.yawObject);
-
-    this.mouseMoveHandler = this.onMouseMove.bind(this);
-    this.keyDownHandler = this.onKeyDown.bind(this);
-    this.keyUpHandler = this.onKeyUp.bind(this);
-
-    this.onGround = true;
-  }
-
-  update(delta) {
-    var d = new THREE.Vector3();
-    if (this.keysDown[controls.forwardKey]) {
-      d.z--;
-    }
-    if (this.keysDown[controls.backwardKey]) {
-      d.z++;
-    }
-    if (this.keysDown[controls.leftKey]) {
-      d.x--;
-    }
-    if (this.keysDown[controls.rightKey]) {
-      d.x++;
-    }
-    if (this.keysDown[controls.jumpKey] && this.onGround) {
-      this.velocity.y = 3.0;
-      this.onGround = false;
-    }
-    if (!this.onGround) {
-      this.velocity.y -= delta * GRAVITY;
-    }
-    if (d.length() != 0) {
-      var walkSpeed = 2.0;
-      d.setLength(walkSpeed);
-      this.velocity.x = d.x;
-      this.velocity.z = d.z;
-    } else {
-      this.velocity.x *= 0.8;
-      this.velocity.z *= 0.8;
-    }
-    this.yawObject.translateX(delta * this.velocity.x);
-    this.yawObject.translateY(delta * this.velocity.y);
-    this.yawObject.translateZ(delta * this.velocity.z);
-    if (this.yawObject.position.y < 0) {
-      this.yawObject.position.y = 0;
-      this.velocity.y = 0;
-      this.onGround = true;
-    }
-  }
-
-  setControlsEnabled(enabled: boolean) {
-    if (this.controlsEnabled == enabled) return;
-    this.controlsEnabled = enabled;
-    if (enabled) {
-      document.addEventListener('mousemove', this.mouseMoveHandler, false);
-      document.addEventListener('keydown', this.keyDownHandler, false);
-      document.addEventListener('keyup', this.keyUpHandler, false);
-    } else {
-      document.removeEventListener('mousemove', this.mouseMoveHandler, false);
-      document.removeEventListener('keydown', this.keyDownHandler, false);
-      document.removeEventListener('keyup', this.keyUpHandler, false);
-    }
-  }
-
-  private onMouseMove(event) {
-    var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-    var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
-    // Chrome bug workaround, https://code.google.com/p/chromium/issues/detail?id=461373
-    var threshold = 50;
-    if (Math.abs(movementX) > threshold || Math.abs(movementY) > threshold) {
-      return;
-    }
-
-    this.yawObject.rotation.y -= movementX * 0.005;
-    this.pitchObject.rotation.x -= movementY * 0.005;
-
-    this.pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitchObject.rotation.x));
-  }
-
-  private onKeyDown(event) {
-    this.keysDown[event.which] = true;
-  }
-
-  private onKeyUp(event) {
-    this.keysDown[event.which] = false;
   }
 }
 
