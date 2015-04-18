@@ -1,12 +1,14 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 var PI_2 = Math.PI / 2;
+var GRAVITY = 9.81;
 
 var controls = {
   forwardKey: 190,
   backwardKey: 69,
   leftKey: 79,
   rightKey: 85,
+  jumpKey: 32,
 }
 
 class Game {
@@ -87,12 +89,15 @@ class Game {
 class Player {
   private pitchObject: THREE.Object3D;
   private yawObject: THREE.Object3D;
+  private velocity: THREE.Vector3 = new THREE.Vector3();
 
   private controlsEnabled: boolean;
   private mouseMoveHandler: any;
   private keyDownHandler: any;
   private keyUpHandler: any;
   private keysDown: {[key: number]: boolean} = {};
+
+  private onGround: boolean;
 
   constructor(scene: THREE.Scene, camera: THREE.Camera) {
     camera.rotation.set(0, 0, 0);
@@ -109,6 +114,8 @@ class Player {
     this.mouseMoveHandler = this.onMouseMove.bind(this);
     this.keyDownHandler = this.onKeyDown.bind(this);
     this.keyUpHandler = this.onKeyUp.bind(this);
+
+    this.onGround = true;
   }
 
   update(delta) {
@@ -125,11 +132,29 @@ class Player {
     if (this.keysDown[controls.rightKey]) {
       d.x++;
     }
+    if (this.keysDown[controls.jumpKey] && this.onGround) {
+      this.velocity.y = 3.0;
+      this.onGround = false;
+    }
+    if (!this.onGround) {
+      this.velocity.y -= delta * GRAVITY;
+    }
     if (d.length() != 0) {
       var walkSpeed = 2.0;
-      d.setLength(walkSpeed * delta);
-      this.yawObject.translateX(d.x);
-      this.yawObject.translateZ(d.z);
+      d.setLength(walkSpeed);
+      this.velocity.x = d.x;
+      this.velocity.z = d.z;
+    } else {
+      this.velocity.x *= 0.8;
+      this.velocity.z *= 0.8;
+    }
+    this.yawObject.translateX(delta * this.velocity.x);
+    this.yawObject.translateY(delta * this.velocity.y);
+    this.yawObject.translateZ(delta * this.velocity.z);
+    if (this.yawObject.position.y < 0) {
+      this.yawObject.position.y = 0;
+      this.velocity.y = 0;
+      this.onGround = true;
     }
   }
 
