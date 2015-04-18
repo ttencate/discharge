@@ -26,16 +26,35 @@ html, body {
   overflow: hidden; // Why??
 }
 
-.overlay {
+.fullscreen {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: table;
-  background-color: rgba(0, 0, 0, 0.5);
   color: #eee;
   cursor: default;
+}
+
+.vcenter {
+  display: table;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.black {
+  background-color: #000;
+}
+
+.fade {
+  @include transition(opacity 0.2s ease-in-out);
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+    @include transition(opacity 0.2s ease-in-out, visibility 0s 0.2s);
+  }
 }
 
 .instructions {
