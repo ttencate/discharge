@@ -1,5 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+var PI_2 = Math.PI / 2;
+
 class Game {
 
   renderer: THREE.WebGLRenderer;
@@ -17,7 +19,6 @@ class Game {
     this.clock = new THREE.Clock();
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    this.camera.position.y = 1.0;
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0xc0c0c0, 0.05);
@@ -77,18 +78,55 @@ class Game {
 }
 
 class Player {
-  private controls: any; // THREE.PointerLockControls
+  private pitchObject: THREE.Object3D;
+  private yawObject: THREE.Object3D;
+  private controlsEnabled: boolean;
 
-  constructor(scene: THREE.Scene, private camera: THREE.Camera) {
-    this.controls = new (<any>THREE).PointerLockControls(camera);
-    scene.add(this.controls.getObject());
+  private mouseMoveHandler: any;
+
+  constructor(scene: THREE.Scene, camera: THREE.Camera) {
+    camera.rotation.set(0, 0, 0);
+
+    this.pitchObject = new THREE.Object3D();
+    this.pitchObject.position.y = 1.0;
+    this.pitchObject.add(camera);
+
+    this.yawObject = new THREE.Object3D();
+    this.yawObject.add(this.pitchObject);
+
+    scene.add(this.yawObject);
+
+    this.mouseMoveHandler = this.onMouseMove.bind(this);
   }
 
   update(delta) {
   }
 
   setControlsEnabled(enabled: boolean) {
-    this.controls.enabled = enabled;
+    if (this.controlsEnabled == enabled) return;
+    this.controlsEnabled = enabled;
+    if (enabled) {
+      document.addEventListener('mousemove', this.mouseMoveHandler, false);
+    } else {
+      document.removeEventListener('mousemove', this.mouseMoveHandler, false);
+    }
+  }
+
+  private onMouseMove(event) {
+    var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+    var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+
+    // Chrome bug workaround, https://code.google.com/p/chromium/issues/detail?id=461373
+    var threshold = 50;
+    if (Math.abs(movementX) > threshold || Math.abs(movementY) > threshold) {
+      return;
+    }
+
+    this.yawObject.rotation.y -= movementX * 0.005;
+    this.pitchObject.rotation.x -= movementY * 0.005;
+
+    console.log(movementX, movementY);
+    this.pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitchObject.rotation.x));
   }
 }
 
