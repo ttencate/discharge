@@ -3,15 +3,7 @@
 var TILE_SIZE = 32;
 var TILE_SUBDIVISIONS = 32;
 var TILE_VERTS = TILE_SUBDIVISIONS + 1;
-var TILE_DISTANCE = VIEW_DISTANCE / TILE_SIZE + 1;
-
-function clamp(min, max, x) {
-  return x < min ? min : (x > max ? max : x);
-}
-
-function lerp(a, b, f) {
-  return (1-f) * a + f * b;
-}
+var TILE_DISTANCE = TERRAIN_DISTANCE / TILE_SIZE + 1;
 
 class Terrain {
   private terragen: Terragen = new Terragen(new Random());
@@ -57,10 +49,11 @@ class Terrain {
     var tz = Math.floor(z / TILE_SIZE);
     var key = tx + ',' + tz;
     var tile = this.tiles[key];
-    if (!tile) {
-      return 0;
+    if (tile) {
+      return tile.heightAt(x - tx*TILE_SIZE, z - tz*TILE_SIZE);
+    } else {
+      return this.terragen.heightAt(x, z);
     }
-    return tile.heightAt(x - tx*TILE_SIZE, z - tz*TILE_SIZE);
   }
 }
 

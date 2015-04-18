@@ -35,6 +35,10 @@ class Player {
     return this.feet;
   }
 
+  getPosition(): THREE.Vector3 {
+    return this.feet.position;
+  }
+
   update(delta) {
     var d = new THREE.Vector3();
     if (this.keysDown[controls.forwardKey]) {

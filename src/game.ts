@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="cloud.ts" />
 /// <reference path="common.ts" />
 /// <reference path="player.ts" />
 /// <reference path="sky.ts" />
@@ -13,32 +14,24 @@ class Game {
   private sky: Sky;
   private terrain: Terrain;
   private player: Player;
+  private clouds: Cloud[] = [];
 
   constructor() {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setClearColor(0xc0c0c0);
     this.renderer.shadowMapEnabled = true;
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, VIEW_DISTANCE);
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, CAMERA_DISTANCE);
 
     this.scene = new THREE.Scene();
 
-    this.scene.fog = new THREE.Fog(0xaa8a5e, 0.1, VIEW_DISTANCE);
+    this.scene.fog = new THREE.Fog(0xaa8a5e, 0.1, FOG_DISTANCE);
 
-    var ambientLight = new THREE.AmbientLight(0x404040);
+    var ambientLight = new THREE.AmbientLight(0x370124);
     this.scene.add(ambientLight);
 
-    var light = new THREE.DirectionalLight(0xc0c0c0, 1.0);
-    light.position.set(-5, 1, 0);
-    // light.castShadow = true;
-    // light.shadowCameraNear = 0.1;
-    // light.shadowCameraFar = 100;
-    // light.shadowCameraLeft = -5;
-    // light.shadowCameraRight = 5;
-    // light.shadowCameraTop = -5;
-    // light.shadowCameraBottom = 5;
-    // light.shadowMapWidth = 1024;
-    // light.shadowMapHeight = 1024;
+    var light = new THREE.DirectionalLight(SUN_COLOR, 1.0);
+    light.position.copy(SUN_POSITION);
     this.scene.add(light);
 
     this.sky = new Sky(this.camera);
@@ -47,6 +40,12 @@ class Game {
 
     this.player = new Player(this.camera, this.terrain);
     this.scene.add(this.player.getObject());
+
+    for (var i = 0; i < 1; i++) {
+      var cloud = new Cloud(0, 0, this.player, this.terrain);
+      this.scene.add(cloud.getObject());
+      this.clouds.push(cloud);
+    }
 
     this.update(0);
   }
@@ -59,8 +58,11 @@ class Game {
 
   update(delta) {
     this.terrain.update();
-    this.sky.update();
+    for (var i = 0; i < this.clouds.length; i++) {
+      this.clouds[i].update(delta);
+    }
     this.player.update(delta);
+    this.sky.update();
   }
 
   render() {

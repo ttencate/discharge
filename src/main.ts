@@ -32,9 +32,17 @@ function pointerLockError() {
   document.getElementById('instructions').classList.remove('hidden');
   game.setControlsEnabled(false);
 }
-document.getElementById('instructions').addEventListener('click', () => {
+document.getElementById('instructions').addEventListener('click', (e: Event) => {
   lockElement.requestPointerLock = lockElement.requestPointerLock || lockElement.mozRequestPointerLock || lockElement.webkitRequestPointerLock;
   lockElement.requestPointerLock();
+  e.preventDefault();
+});
+document.addEventListener('click', (e: MouseEvent) => {
+  if (locked && e.button == 2) {
+    var doc = <any>document;
+    doc.exitPointerLock = doc.exitPointerLock || doc.mozExitPointerLock || doc.webkitExitPointerLock;
+    doc.exitPointerLock();
+  }
 });
 
 game.resize();
