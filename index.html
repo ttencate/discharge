@@ -53,6 +53,23 @@
       }
     </script>
 
+    <script type="application/x-glsl" id="lightning-vertex">
+      varying vec3 viewNormal;
+
+      void main() {
+        viewNormal = mat3(modelViewMatrix) * normal;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    </script>
+    <script type="application/x-glsl" id="lightning-fragment">
+      varying vec3 viewNormal;
+
+      void main() {
+        float f = dot(normalize(viewNormal.xz), vec2(0.0, 1.0));
+        gl_FragColor = vec4(0.8, 0.9, 1.0, 3.0 * pow(f, 50.0));
+      }
+    </script>
+
     <script src="howler.min.js"></script>
     <script src="three.min.js"></script>
     <script src="main.js"></script>

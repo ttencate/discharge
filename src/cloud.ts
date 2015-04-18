@@ -21,6 +21,7 @@ class Cloud {
   private charge: number;
   private cooldown: number;
 
+  private spot: THREE.SpotLight;
   private lightning: Lightning;
 
   constructor(x: number, z: number, private player: Player, private terrain: Terrain) {
@@ -61,6 +62,17 @@ class Cloud {
     this.lightning = new Lightning(new THREE.Vector3(0, -CLOUD_HEIGHT, 0));
     this.lightning.setVisible(false);
     this.obj.add(this.lightning.getObject());
+
+    var spotTarget = new THREE.Object3D();
+    spotTarget.position.set(0, -100, 0);
+    this.obj.add(spotTarget);
+
+    this.spot = new THREE.SpotLight(0xffffff, 2.0);
+    this.spot.position.set(0, -10, 0);
+    this.spot.target = spotTarget;
+    this.spot.angle = 0.3 * Math.PI/2;
+    this.spot.exponent = 100.0;
+    this.obj.add(this.spot);
   }
 
   getObject(): THREE.Object3D {
@@ -124,6 +136,8 @@ class Cloud {
     }
 
     this.mesh.rotation.z += delta * this.rotationSpeed * (1 + 30 * this.charge);
+
+    this.spot.intensity = 1.5 + Math.random();
 
     this.lightning.update(delta);
   }
