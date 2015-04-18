@@ -26,29 +26,6 @@ html, body {
   overflow: hidden; // Why??
 }
 
-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16px;
-  text-align: center;
-  font-size: 16px;
-  color: #ccc;
-  text-shadow: 0 0 4px #000;
-  a {
-    color: inherit;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  a:hover {
-    color: #fff;
-  }
-  a:active {
-    color: #ddd;
-  }
-}
-
 .overlay {
   position: absolute;
   top: 0;
@@ -67,5 +44,28 @@ footer {
   vertical-align: middle;
   font-size: 32px;
   line-height: 48px;
-  text-shadow: 0 0 8px #000;
+  text-shadow: 0 0 8px #fff;
+}
+
+footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: 16px;
+  color: #222;
+  text-shadow: 0 0 3px #fff;
+  a {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  a:hover {
+    color: #fff;
+  }
+  a:active {
+    color: #ddd;
+  }
 }

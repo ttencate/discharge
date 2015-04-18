@@ -2,6 +2,13 @@
 
 var PI_2 = Math.PI / 2;
 
+var controls = {
+  forwardKey: 190,
+  backwardKey: 69,
+  leftKey: 79,
+  rightKey: 85,
+}
+
 class Game {
 
   renderer: THREE.WebGLRenderer;
@@ -80,9 +87,12 @@ class Game {
 class Player {
   private pitchObject: THREE.Object3D;
   private yawObject: THREE.Object3D;
-  private controlsEnabled: boolean;
 
+  private controlsEnabled: boolean;
   private mouseMoveHandler: any;
+  private keyDownHandler: any;
+  private keyUpHandler: any;
+  private keysDown: {[key: number]: boolean} = {};
 
   constructor(scene: THREE.Scene, camera: THREE.Camera) {
     camera.rotation.set(0, 0, 0);
@@ -97,9 +107,30 @@ class Player {
     scene.add(this.yawObject);
 
     this.mouseMoveHandler = this.onMouseMove.bind(this);
+    this.keyDownHandler = this.onKeyDown.bind(this);
+    this.keyUpHandler = this.onKeyUp.bind(this);
   }
 
   update(delta) {
+    var d = new THREE.Vector3();
+    if (this.keysDown[controls.forwardKey]) {
+      d.z--;
+    }
+    if (this.keysDown[controls.backwardKey]) {
+      d.z++;
+    }
+    if (this.keysDown[controls.leftKey]) {
+      d.x--;
+    }
+    if (this.keysDown[controls.rightKey]) {
+      d.x++;
+    }
+    if (d.length() != 0) {
+      var walkSpeed = 2.0;
+      d.setLength(walkSpeed * delta);
+      this.yawObject.translateX(d.x);
+      this.yawObject.translateZ(d.z);
+    }
   }
 
   setControlsEnabled(enabled: boolean) {
@@ -107,8 +138,12 @@ class Player {
     this.controlsEnabled = enabled;
     if (enabled) {
       document.addEventListener('mousemove', this.mouseMoveHandler, false);
+      document.addEventListener('keydown', this.keyDownHandler, false);
+      document.addEventListener('keyup', this.keyUpHandler, false);
     } else {
       document.removeEventListener('mousemove', this.mouseMoveHandler, false);
+      document.removeEventListener('keydown', this.keyDownHandler, false);
+      document.removeEventListener('keyup', this.keyUpHandler, false);
     }
   }
 
@@ -126,6 +161,14 @@ class Player {
     this.pitchObject.rotation.x -= movementY * 0.005;
 
     this.pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitchObject.rotation.x));
+  }
+
+  private onKeyDown(event) {
+    this.keysDown[event.which] = true;
+  }
+
+  private onKeyUp(event) {
+    this.keysDown[event.which] = false;
   }
 }
 
