@@ -135,7 +135,7 @@ class Cloud {
         break;
     }
 
-    this.mesh.rotation.z += delta * this.rotationSpeed * (1 + 30 * this.charge);
+    this.mesh.rotation.z += delta * this.rotationSpeed * (1 + 10 * this.charge);
 
     this.spot.intensity = 1.5 + Math.random();
 

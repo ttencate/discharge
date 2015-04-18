@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="tree.ts" />
 
 var TILE_SIZE = 32;
 var TILE_SUBDIVISIONS = 32;
@@ -58,20 +59,31 @@ class Terrain {
 }
 
 class Tile {
+  private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
   private heightmap: Float64Array;
   private x: number;
   private z: number;
+  private trees: Tree[] = [];
 
   constructor(tx: number, tz: number, terragen: Terragen) {
     this.x = tx * TILE_SIZE;
     this.z = tz * TILE_SIZE;
 
+    this.obj = new THREE.Object3D();
+    this.obj.position.x = this.x;
+    this.obj.position.z = this.z;
+
     this.heightmap = new Float64Array(TILE_VERTS * TILE_VERTS);
     for (var z = 0; z < TILE_VERTS; z++) {
       for (var x = 0; x < TILE_VERTS; x++) {
-        this.heightmap[x + TILE_VERTS * z] =
-            terragen.heightAt(this.x + x / TILE_SUBDIVISIONS * TILE_SIZE, this.z + z / TILE_SUBDIVISIONS * TILE_SIZE);
+        var height = terragen.heightAt(this.x + x / TILE_SUBDIVISIONS * TILE_SIZE, this.z + z / TILE_SUBDIVISIONS * TILE_SIZE);
+        this.heightmap[x + TILE_VERTS * z] = height;
+        if (terragen.treeAt(height)) {
+          var tree = new Tree(x * TILE_SIZE / TILE_SUBDIVISIONS, height, z * TILE_SIZE / TILE_SUBDIVISIONS);
+          this.trees.push(tree);
+          this.obj.add(tree.getObject());
+        }
       }
     }
 
@@ -93,9 +105,8 @@ class Tile {
       color: 0xaa7a39,
       shading: THREE.FlatShading,
     }));
-    this.mesh.position.x = this.x;
-    this.mesh.position.z = this.z;
     this.mesh.receiveShadow = true;
+    this.obj.add(this.mesh);
   }
 
   destroy() {
@@ -105,7 +116,7 @@ class Tile {
   }
 
   getObject(): THREE.Object3D {
-    return this.mesh;
+    return this.obj;
   }
 
   heightAt(x: number, z: number): number {
@@ -164,6 +175,10 @@ class Terragen {
       scale /= random.float(1.6, 2.5);
       exponent = Math.pow(exponent, random.float(0.5, 1.0));
     }
+  }
+
+  treeAt(height: number): boolean {
+    return height < AMP / 2 && (height * 1000) % 1 < 0.001;
   }
    
   heightAt(x: number, z: number): number {
