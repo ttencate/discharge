@@ -41,19 +41,19 @@ class Player {
 
   update(delta) {
     var d = new THREE.Vector3();
-    if (this.keysDown[controls.forwardKey]) {
+    if (this.isKeyDown(controls.forwardKeys)) {
       d.z--;
     }
-    if (this.keysDown[controls.backwardKey]) {
+    if (this.isKeyDown(controls.backwardKeys)) {
       d.z++;
     }
-    if (this.keysDown[controls.leftKey]) {
+    if (this.isKeyDown(controls.leftKeys)) {
       d.x--;
     }
-    if (this.keysDown[controls.rightKey]) {
+    if (this.isKeyDown(controls.rightKeys)) {
       d.x++;
     }
-    if (this.keysDown[controls.jumpKey] && this.onGround) {
+    if (this.isKeyDown(controls.jumpKeys) && this.onGround) {
       this.velocity.y = 3.0;
       this.onGround = false;
     }
@@ -76,6 +76,13 @@ class Player {
       this.velocity.y = 0;
       this.onGround = true;
     }
+  }
+
+  private isKeyDown(keys: number[]): boolean {
+    for (var i = 0; i < keys.length; i++) {
+      if (this.keysDown[keys[i]]) return true;
+    }
+    return false;
   }
 
   setControlsEnabled(enabled: boolean) {

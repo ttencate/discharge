@@ -22,13 +22,16 @@ var CLOUD_COOLDOWN_TIME = 3.0;
 
 var PI_2 = Math.PI / 2;
 
-var controls = {
-  forwardKey: 190,
-  backwardKey: 69,
-  leftKey: 79,
-  rightKey: 85,
-  jumpKey: 32,
+function k(s: string): number {
+  return s.charCodeAt(0);
 }
+var controls = {
+  forwardKeys: [190, k('W'), k('Z'), 38],
+  backwardKeys: [k('E'), k('S'), 40],
+  leftKeys: [k('O'), k('A'), 37],
+  rightKeys: [k('U'), k('D'), 39],
+  jumpKeys: [k(' ')],
+};
 
 function clamp(min, max, x) {
   return x < min ? min : (x > max ? max : x);
