@@ -8,7 +8,6 @@ class Game {
   renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
-  private clock: THREE.Clock;
 
   private terrain: Terrain;
   private player: Player;
@@ -18,8 +17,6 @@ class Game {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setClearColor(0xc0c0c0);
     this.renderer.shadowMapEnabled = true;
-
-    this.clock = new THREE.Clock();
 
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, VIEW_DISTANCE);
 
@@ -43,20 +40,8 @@ class Game {
     // light.shadowMapHeight = 1024;
     this.scene.add(light);
 
-    for (var z = -6; z <= -2; z += 2) {
-      for (var x = -2; x <= 2; x += 2) {
-        var h = 2.0 * Math.random();
-        this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, h, 1), new THREE.MeshPhongMaterial({color: 0xff8000}));
-        this.cube.position.x = x;
-        this.cube.position.y = h/2;
-        this.cube.position.z = z;
-        this.cube.castShadow = true;
-        this.scene.add(this.cube);
-      }
-    }
-
     var sky = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000, 1, 1), new THREE.MeshBasicMaterial({color: 0xa0b0ff}));
-    sky.position.y = 6;
+    sky.position.y = 100;
     sky.rotation.x = Math.PI/2;
     this.scene.add(sky);
 
@@ -64,6 +49,8 @@ class Game {
 
     this.player = new Player(this.camera, this.terrain);
     this.scene.add(this.player.getObject());
+
+    this.update(0);
   }
 
   resize() {
@@ -72,12 +59,12 @@ class Game {
     this.camera.updateProjectionMatrix();
   }
 
-  render() {
-    var delta = this.clock.getDelta();
-
+  update(delta) {
     this.terrain.update();
     this.player.update(delta);
+  }
 
+  render() {
     this.renderer.render(this.scene, this.camera);
   }
 

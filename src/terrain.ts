@@ -136,17 +136,66 @@ class Tile {
   }
 }
 
+const NOISE_SIZE = 64;
+const OCTAVES = 8;
+const AMP = 128;
+const X_OFFSET = 0.2187474;
+const Z_OFFSET = 0.1736391;
+
 class Terragen {
-  private noise: Float64Array = new Float64Array(1024);
+  private noise: Float64Array = new Float64Array(NOISE_SIZE * NOISE_SIZE);
+  private transforms: THREE.Matrix3[] = [];
+  private exponents: number[] = [];
+  private v: THREE.Vector3 = new THREE.Vector3();
 
   constructor(private random: Random) {
     for (var i = 0; i < this.noise.length; i++) {
       this.noise[i] = random.float();
     }
+    var scale = 128;
+    var exponent = 8;
+    for (var i = 0; i < OCTAVES; i++) {
+      var m = new THREE.Matrix3();
+      var rot = random.float(0.0, 2 * Math.PI);
+      var s = 1/scale;
+      m.elements[0] = s * Math.cos(rot);
+      m.elements[1] = s * Math.sin(rot);
+      m.elements[3] = s * -Math.sin(rot);
+      m.elements[4] = s * Math.cos(rot);
+      m.elements[2] = random.float(0.0, s);
+      m.elements[5] = random.float(0.0, s);
+      this.transforms[i] = m;
+
+      this.exponents[i] = exponent;
+
+      scale /= random.float(1.6, 2.5);
+      exponent = Math.pow(exponent, random.float(0.5, 1.0));
+    }
   }
    
   heightAt(x: number, z: number): number {
-    return 3 * Math.sin(0.3*x) * Math.sin(0.2*z);
+    var v = this.v;
+
+    var amplitude = AMP / 2;
+    var scale = 128;
+    var sum = 0;
+    for (var octave = 0; octave < OCTAVES; octave++) {
+      v.set(x, z, 1).applyMatrix3(this.transforms[octave]);
+      var sx = (v.x % NOISE_SIZE + NOISE_SIZE) % NOISE_SIZE;
+      var sz = (v.y % NOISE_SIZE + NOISE_SIZE) % NOISE_SIZE;
+      var ix0 = Math.floor(sx);
+      var iz0 = Math.floor(sz);
+      var ix1 = (ix0 + 1) % NOISE_SIZE;
+      var iz1 = (iz0 + 1) % NOISE_SIZE;
+      var fx = sx - ix0;
+      var fz = sz - iz0;
+      var a = lerp(this.noise[ix0 + NOISE_SIZE * iz0], this.noise[ix1 % NOISE_SIZE + NOISE_SIZE * iz0], fx);
+      var b = lerp(this.noise[ix0 + NOISE_SIZE * iz1], this.noise[ix1 % NOISE_SIZE + NOISE_SIZE * iz1], fx);
+      var sample = lerp(a, b, fz);
+      sum += amplitude * Math.pow(sample, this.exponents[octave]);
+      amplitude /= 2;
+    }
+    return sum;
   }
 }
 

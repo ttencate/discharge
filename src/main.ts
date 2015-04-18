@@ -8,6 +8,7 @@ var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement
 if (!havePointerLock) {
   alert('Your browser does not support pointer lock. Please use a recent version of Chrome or Firefox to play!');
 }
+var locked = false;
 var lockElement = <any>document.body;
 document.addEventListener('pointerlockchange', pointerLockChange, false);
 document.addEventListener('mozpointerlockchange', pointerLockChange, false);
@@ -17,7 +18,7 @@ document.addEventListener('mozpointerlockerror', pointerLockError, false);
 document.addEventListener('webkitpointerlockerror', pointerLockError, false);
 function pointerLockChange() {
   var elt = (<any>document).pointerLockElement || (<any>document).mozPointerLockElement || (<any>document).webkitPointerLockElement;
-  var locked = elt == lockElement;
+  locked = elt == lockElement;
   if (locked) {
     document.getElementById('instructions').classList.add('hidden');
     game.setControlsEnabled(true);
@@ -27,6 +28,7 @@ function pointerLockChange() {
   }
 }
 function pointerLockError() {
+  locked = false;
   document.getElementById('instructions').classList.remove('hidden');
   game.setControlsEnabled(false);
 }
@@ -38,7 +40,12 @@ document.getElementById('instructions').addEventListener('click', () => {
 game.resize();
 window.addEventListener('resize', game.resize.bind(game));
 
+var clock = new THREE.Clock();
 function render() {
+  var delta = clock.getDelta();
+  if (locked) {
+    game.update(delta);
+  }
   game.render();
   requestAnimationFrame(render);
 }
