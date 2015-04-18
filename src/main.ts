@@ -125,7 +125,6 @@ class Player {
     this.yawObject.rotation.y -= movementX * 0.005;
     this.pitchObject.rotation.x -= movementY * 0.005;
 
-    console.log(movementX, movementY);
     this.pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitchObject.rotation.x));
   }
 }
