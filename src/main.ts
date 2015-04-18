@@ -40,16 +40,16 @@ class Game {
     this.scene.add(ambientLight);
 
     var light = new THREE.DirectionalLight(0xc0c0c0, 1.0);
-    light.position.set(2, 5, 0);
-    light.castShadow = true;
-    light.shadowCameraNear = 0.1;
-    light.shadowCameraFar = 100;
-    light.shadowCameraLeft = -5;
-    light.shadowCameraRight = 5;
-    light.shadowCameraTop = -5;
-    light.shadowCameraBottom = 5;
-    light.shadowMapWidth = 1024;
-    light.shadowMapHeight = 1024;
+    light.position.set(1, 1, 1);
+    // light.castShadow = true;
+    // light.shadowCameraNear = 0.1;
+    // light.shadowCameraFar = 100;
+    // light.shadowCameraLeft = -5;
+    // light.shadowCameraRight = 5;
+    // light.shadowCameraTop = -5;
+    // light.shadowCameraBottom = 5;
+    // light.shadowMapWidth = 1024;
+    // light.shadowMapHeight = 1024;
     this.scene.add(light);
 
     for (var z = -6; z <= -2; z += 2) {
