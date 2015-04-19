@@ -1,17 +1,19 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+var treeMesh = new THREE.CylinderGeometry(TREE_RADIUS/4, TREE_RADIUS, 1, 12, 1);
+
 class Tree {
   private mesh: THREE.Mesh;
 
-  constructor(x: number, y: number, z: number) {
-    var height = 50;
+  constructor(x: number, y: number, z: number, height: number) {
     this.mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.5, 2, height, 12, 1),
+        treeMesh,
         new THREE.MeshPhongMaterial({
           color: 0x4f0937,
           shading: THREE.FlatShading,
         }));
-    this.mesh.position.set(x, y - 1, z);
+    this.mesh.scale.y = height;
+    this.mesh.position.set(x, y + height/2 - 2, z);
   }
 
   getObject(): THREE.Object3D {
@@ -20,5 +22,8 @@ class Tree {
 
   getPosition(): THREE.Vector3 {
     return this.getObject().position;
+  }
+
+  distanceTo(x: number, z: number) {
   }
 }

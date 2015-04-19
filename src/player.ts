@@ -1,6 +1,9 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
 
+var tmp = new THREE.Vector3();
+var tmp2 = new THREE.Vector3();
+
 class Player {
   private feet: THREE.Object3D;
   private pitchObject: THREE.Object3D;
@@ -75,6 +78,21 @@ class Player {
       this.feet.position.y = terrainHeight;
       this.velocity.y = 0;
       this.onGround = true;
+    }
+
+    var pos = this.feet.position;
+    //console.log(pos.x, pos.z);
+    var tree = this.terrain.closestTree(pos.x, pos.z);
+    if (tree) {
+      tmp.copy(tree.getPosition()).setY(pos.y);
+      var min = TREE_RADIUS + NEAR_PLANE + 0.001;
+      //console.log(tmp.distanceTo(pos));
+      if (tmp.distanceTo(pos) < min) {
+        tmp2.subVectors(pos, tmp);
+        if (tmp2.x == 0 && tmp2.z == 0) tmp2.x = 1;
+        tmp2.setLength(min);
+        pos.addVectors(tmp, tmp2);
+      }
     }
   }
 

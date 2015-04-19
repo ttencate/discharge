@@ -6,8 +6,11 @@ var TILE_SIZE = 64;
 var TILE_SUBDIVISIONS = 64;
 var TILE_VERTS = TILE_SUBDIVISIONS + 1;
 var TILE_DISTANCE = TERRAIN_DISTANCE / TILE_SIZE + 1;
+
 var TREE_PROBABILITY = 0.5;
-var MAX_TREES_PER_TILE = 12;
+var MAX_TREES_PER_TILE = 10;
+var MIN_TREE_HEIGHT = 20;
+var MAX_TREE_HEIGHT = 30;
 
 class Terrain {
   private terragen: Terragen = new Terragen(new Random());
@@ -59,6 +62,19 @@ class Terrain {
       return this.terragen.heightAt(x, z);
     }
   }
+
+  closestTree(x: number, z: number): Tree {
+    var tx = Math.floor(x / TILE_SIZE);
+    var tz = Math.floor(z / TILE_SIZE);
+    var key = tx + ',' + tz;
+    // TODO need to also check surrounding tiles
+    var tile = this.tiles[key];
+    if (tile) {
+      return tile.closestTree(x, z);
+    } else {
+      return null;
+    }
+  }
 }
 
 class Tile {
@@ -74,8 +90,6 @@ class Tile {
     this.z = tz * TILE_SIZE;
 
     this.obj = new THREE.Object3D();
-    this.obj.position.x = this.x;
-    this.obj.position.z = this.z;
 
     this.heightmap = new Float64Array(TILE_VERTS * TILE_VERTS);
     for (var z = 0; z < TILE_VERTS; z++) {
@@ -103,20 +117,22 @@ class Tile {
       color: 0xaa7a39,
       shading: THREE.FlatShading,
     }));
+    this.mesh.position.x = this.x;
+    this.mesh.position.z = this.z;
     this.mesh.receiveShadow = true;
     this.obj.add(this.mesh);
 
     var random = new Random(2579 * tx + 7919 * tz);
     if (random.boolean(TREE_PROBABILITY)) {
-      var woodsRadius = random.float(TILE_SIZE / 4, TILE_SIZE / 2);
-      var woodsX = random.float(woodsRadius + TREE_RADIUS, TILE_SIZE - woodsRadius - TREE_RADIUS);
-      var woodsZ = random.float(woodsRadius + TREE_RADIUS, TILE_SIZE - woodsRadius - TREE_RADIUS);
+      var woodsSize = random.float(TILE_SIZE / 3, TILE_SIZE - 2 * TREE_RADIUS);
+      var woodsX = random.float(TREE_RADIUS, TILE_SIZE - woodsSize - TREE_RADIUS);
+      var woodsZ = random.float(TREE_RADIUS, TILE_SIZE - woodsSize - TREE_RADIUS);
       var numTrees = random.int(1, MAX_TREES_PER_TILE + 1);
       var treePos = new THREE.Vector3();
       while (numTrees--) {
-        treePos.x = woodsX + random.float(woodsRadius);
-        treePos.z = woodsZ + random.float(woodsRadius);
-        var closest = this.closestTree(treePos.x, treePos.z);
+        treePos.x = woodsX + random.float(woodsSize);
+        treePos.z = woodsZ + random.float(woodsSize);
+        var closest = this.closestTree(this.x + treePos.x, this.z + treePos.z);
         if (closest) {
           treePos.y = closest.getPosition().y;
           if (closest.getPosition().distanceTo(treePos) < 2 * TREE_RADIUS) {
@@ -124,7 +140,7 @@ class Tile {
           }
         }
         var height = this.heightAt(treePos.x, treePos.z);
-        var tree = new Tree(treePos.x, height, treePos.z);
+        var tree = new Tree(this.x + treePos.x, height, this.z + treePos.z, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT));
         this.trees.push(tree);
         this.obj.add(tree.getObject());
       }

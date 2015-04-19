@@ -1,5 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+var NEAR_PLANE = 0.1;
 var FOG_DISTANCE = 100;
 var TERRAIN_DISTANCE = 150;
 var CAMERA_DISTANCE = 500;
@@ -11,7 +12,7 @@ var WALK_SPEED = 5.0;
 var SLOW_DOWN_FACTOR = 0.8;
 
 var CLOUD_HEIGHT = 50;
-var MIN_CLOUD_HEIGHT = 20;
+var MIN_CLOUD_HEIGHT = 30;
 var CLOUD_SPEED = 30.0;
 var CLOUD_TURN_SPEED = 0.5;
 var CLOUD_ROTATE_SPEED = 1.0;

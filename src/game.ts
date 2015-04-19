@@ -21,7 +21,7 @@ class Game {
     this.renderer.setClearColor(0xc0c0c0);
     this.renderer.shadowMapEnabled = true;
 
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, CAMERA_DISTANCE);
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
 
     this.scene = new THREE.Scene();
 
