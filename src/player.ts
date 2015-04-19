@@ -88,10 +88,10 @@ class Player {
       this.velocity.x = d.x;
       this.velocity.z = d.z;
 
-      d.setLength(0.1).add(this.feet.position);
-      var slope = (this.terrain.heightAt(d) - terrainHeight) / 0.1;
+      d.setLength(2.0).applyQuaternion(this.feet.quaternion).add(this.feet.position);
+      var slope = (this.terrain.heightAt(d) - terrainHeight) / 2.0;
 
-      d.set(this.velocity.x, 0, this.velocity.z).setLength(WALK_SPEED * clamp(0, 2, 1 - slope));
+      d.set(this.velocity.x, 0, this.velocity.z).setLength(WALK_SPEED * clamp(0.2, 1.8, 1 - 0.8 * slope));
       this.velocity.x = d.x;
       this.velocity.z = d.z;
     } else {
@@ -102,6 +102,7 @@ class Player {
     this.feet.translateY(delta * this.velocity.y);
     this.feet.translateZ(delta * this.velocity.z);
 
+    terrainHeight = this.terrain.heightAt(this.feet.position);
     if (this.feet.position.y < terrainHeight) {
       this.feet.position.y = terrainHeight;
       this.velocity.y = 0;
