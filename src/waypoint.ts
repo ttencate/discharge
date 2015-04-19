@@ -4,7 +4,7 @@
 class Waypoint {
   private obj: THREE.Object3D;
 
-  constructor(pos: THREE.Vector3) {
+  constructor(pos: THREE.Vector3, final: boolean) {
     this.obj = new THREE.Object3D();
     this.obj.position.copy(pos);
 
@@ -46,10 +46,10 @@ class Path {
     return this.obj;
   }
 
-  addWaypoint(x: number, z: number) {
+  addWaypoint(x: number, z: number, final?: boolean) {
     this.tmp.set(x, 0, z);
     this.tmp.y = this.terrain.heightAt(this.tmp);
-    var w = new Waypoint(this.tmp);
+    var w = new Waypoint(this.tmp, final || false);
     if (this.waypoints.length == 0) {
       this.obj.add(w.getObject());
       this.index = 0;

@@ -37,19 +37,29 @@ class Game {
     this.terrain = new Terrain(this.scene, this.camera);
 
     this.player = new Player(this.camera, this.terrain);
+    this.player.getObject().position.set(104, 0, -26);
+    this.player.getObject().rotation.y = Math.PI/2;
     this.scene.add(this.player.getObject());
 
     for (var i = 0; i < 1; i++) {
-      var cloud = new Cloud(0, -50, this.player, this.terrain);
+      var cloud = new Cloud(11, 24, this.player, this.terrain);
       this.scene.add(cloud.getObject());
       this.clouds.push(cloud);
     }
 
     this.path = new Path(this.terrain, this.player);
-    this.path.addWaypoint(-50, 0);
-    this.path.addWaypoint(-50, 50);
-    this.path.addWaypoint(50, 50);
-    this.path.addWaypoint(50, -50);
+    this.path.addWaypoint(71, -74);
+    this.path.addWaypoint(20, -147);
+    this.path.addWaypoint(101, -193);
+    this.path.addWaypoint(212, -248);
+    this.path.addWaypoint(309, -243);
+    this.path.addWaypoint(420, -292);
+    this.path.addWaypoint(494, -363);
+    this.path.addWaypoint(611, -463);
+    this.path.addWaypoint(691, -616);
+    this.path.addWaypoint(892, -672);
+    this.path.addWaypoint(1001, -616);
+    this.path.addWaypoint(1058, -577, true);
     this.scene.add(this.path.getObject());
 
     this.hud = new HUD(this.path);

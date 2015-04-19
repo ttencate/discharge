@@ -68,6 +68,7 @@ class Player {
       if (this.isKeyDown(controls.jumpKeys) && this.onGround) {
         this.velocity.y = 3.0;
         this.onGround = false;
+        console.log(Math.round(this.feet.position.x), Math.round(this.feet.position.z));
       }
     }
     this.velocity.y -= delta * GRAVITY;
