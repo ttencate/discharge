@@ -3,6 +3,7 @@
 
 class Waypoint {
   private obj: THREE.Object3D;
+  private sound: THREE.Audio;
 
   constructor(pos: THREE.Vector3, final: boolean) {
     this.obj = new THREE.Object3D();
@@ -18,8 +19,12 @@ class Waypoint {
           depthWrite: false,
           blending: THREE.AdditiveBlending,
         }));
-    mesh.position.y = -10;
+    mesh.position.y = -5;
     this.obj.add(mesh);
+
+    this.sound = new THREE.Audio(audioListener);
+    this.sound.load('waypoint.ogg');
+    this.obj.add(this.sound);
   }
 
   getObject(): THREE.Object3D {
@@ -28,6 +33,10 @@ class Waypoint {
 
   getPosition(): THREE.Vector3 {
     return this.obj.position;
+  }
+
+  ping() {
+    (<any>this.sound).play();
   }
 }
 
@@ -76,6 +85,7 @@ class Path {
   update(delta: number) {
     var w = this.waypoints[this.index];
     if (w && planarDistance(this.player.getPosition(), w.getPosition()) <= WAYPOINT_RADIUS) {
+      w.ping();
       this.obj.remove(w.getObject());
       this.index++;
       window.location.hash = '#' + this.index;

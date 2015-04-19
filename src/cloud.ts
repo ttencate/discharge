@@ -64,6 +64,15 @@ class Cloud {
     this.lightning = new Lightning(this.lightningTarget);
     this.obj.add(this.lightning.getObject());
     this.lightning.setVisible(false);
+
+    var sound = new THREE.Audio(audioListener);
+    sound.position.y = -CLOUD_HEIGHT / 2;
+    sound.load('cloud.ogg');
+    sound.setLoop(true);
+    (<any>sound).autoplay = true;
+    sound.setRefDistance(70);
+    sound.setRolloffFactor(10);
+    this.obj.add(sound);
   }
 
   getObject(): THREE.Object3D {
@@ -133,7 +142,7 @@ class Cloud {
         break;
       case CloudState.COOLDOWN:
         this.cooldown -= delta / CLOUD_COOLDOWN_TIME;
-        if (this.cooldown <= 0) {
+        if (this.cooldown <= 0 && !this.player.isDead()) {
           this.charge = 0;
           this.state = CloudState.CHARGING;
         }

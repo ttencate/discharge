@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="sound.ts" />
 
 function displace(points: THREE.Vector3[], start: number, end: number, offset: number) {
   if (end - start < 2) {
@@ -21,6 +22,7 @@ class Lightning {
   private light: THREE.PointLight;
   private meshIndex: number = -1;
   private time: number = 0;
+  private sounds: THREE.Audio[] = [];
 
   private a: THREE.Vector3 = new THREE.Vector3();
   private b: THREE.Vector3 = new THREE.Vector3();
@@ -57,6 +59,14 @@ class Lightning {
 
     this.light = new THREE.PointLight(0xddeeff, 0.0, 0.0);
     this.obj.add(this.light);
+
+    for (var i = 0; i < 3; i++) {
+      var sound = new THREE.Audio(audioListener);
+      sound.load('thunder' + (i+1) + '.ogg');
+      sound.setRefDistance(50);
+      this.sounds.push(sound);
+      this.light.add(sound);
+    }
   }
 
   getObject(): THREE.Object3D {
@@ -65,6 +75,7 @@ class Lightning {
 
   setVisible(visible: boolean) {
     if (visible) {
+      (<any>this.sounds[Math.floor(Math.random() * 3)]).play();
       this.meshIndex = 0;
     } else {
       this.meshIndex = -1;

@@ -4,6 +4,7 @@
 /// <reference path="hud.ts" />
 /// <reference path="player.ts" />
 /// <reference path="sky.ts" />
+/// <reference path="sound.ts" />
 /// <reference path="terrain.ts" />
 /// <reference path="waypoint.ts" />
 
@@ -21,6 +22,9 @@ class Game {
 
   constructor(start: number) {
     this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
+
+    audioListener = new THREE.AudioListener();
+    this.camera.add(audioListener);
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.Fog(0xaa8a5e, 0.1, FOG_DISTANCE);

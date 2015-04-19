@@ -1,10 +1,12 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="sound.ts" />
 
 class Tree {
   public onBurn: () => void;
 
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
+  private sounds: THREE.Audio[] = [];
 
   constructor(x: number, y: number, z: number, private height: number) {
     this.obj = new THREE.Object3D();
@@ -19,6 +21,14 @@ class Tree {
     this.mesh.scale.y = height + 2;
     this.mesh.position.y = height/2 - 1;
     this.obj.add(this.mesh);
+
+    for (var i = 0; i < 3; i++) {
+      var sound = new THREE.Audio(audioListener);
+      sound.load('boom' + (i+1) + '.ogg');
+      sound.setRefDistance(100);
+      this.sounds.push(sound);
+      this.obj.add(sound);
+    }
   }
 
   getObject(): THREE.Object3D {
@@ -45,6 +55,7 @@ class Tree {
   }
 
   burn() {
+    (<any>this.sounds[Math.floor(Math.random() * 3)]).play();
     if (this.onBurn) {
       this.onBurn();
     }

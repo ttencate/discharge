@@ -1,6 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
 /// <reference path="game.ts" />
+/// <reference path="sound.ts" />
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 if (!havePointerLock) {
@@ -82,7 +83,9 @@ function unlock() {
 }
 
 function updateOverlay() {
-  if (game.isOver()) {
+  if (!game) {
+    setOverlay('loading');
+  } else if (game.isOver()) {
     setOverlay('dead');
   } else if (!locked) {
     setOverlay('instructions');
@@ -114,5 +117,3 @@ function render() {
   requestAnimationFrame(render);
 }
 render();
-
-document.getElementById('loading').classList.add('hidden');

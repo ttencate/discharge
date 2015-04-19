@@ -23,10 +23,19 @@ class Player {
 
   private onGround: boolean;
 
+  private wind: THREE.Audio;
+
   private tmp: THREE.Vector3 = new THREE.Vector3();
 
   constructor(camera: THREE.Camera, private terrain: Terrain) {
     camera.rotation.set(0, 0, 0);
+
+    this.wind = new THREE.Audio(audioListener);
+    this.wind.load('wind.ogg');
+    (<any>this.wind).autoplay = true;
+    (<any>this.wind).setVolume(0.3);
+    this.wind.setLoop(true);
+    camera.add(this.wind);
 
     this.pitchObject = new THREE.Object3D();
     this.pitchObject.position.y = 1.6;
@@ -110,6 +119,7 @@ class Player {
   }
 
   die() {
+    (<any>this.wind).stop();
     this.state = PlayerState.DEAD;
     document.getElementById('dead').classList.remove('hidden');
   }
