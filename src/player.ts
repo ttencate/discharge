@@ -1,5 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
+/// <reference path="seed.ts" />
 
 var tmp = new THREE.Vector3();
 var tmp2 = new THREE.Vector3();
@@ -17,6 +18,7 @@ class Player {
 
   private controlsEnabled: boolean;
   private mouseMoveHandler: any;
+  private mouseDownHandler: any;
   private keyDownHandler: any;
   private keyUpHandler: any;
   private keysDown: {[key: number]: boolean} = {};
@@ -25,7 +27,10 @@ class Player {
 
   private wind: THREE.Audio;
 
+  public seed: Seed = null;
+
   private tmp: THREE.Vector3 = new THREE.Vector3();
+  private tmp2: THREE.Vector3 = new THREE.Vector3();
 
   constructor(camera: THREE.Camera, private terrain: Terrain) {
     camera.rotation.set(0, 0, 0);
@@ -45,6 +50,7 @@ class Player {
     this.feet.add(this.pitchObject);
 
     this.mouseMoveHandler = this.onMouseMove.bind(this);
+    this.mouseDownHandler = this.onMouseDown.bind(this);
     this.keyDownHandler = this.onKeyDown.bind(this);
     this.keyUpHandler = this.onKeyUp.bind(this);
 
@@ -110,7 +116,7 @@ class Player {
     }
 
     var pos = this.feet.position;
-    var tree = this.terrain.closestTree(pos);
+    var tree = this.terrain.closestTree(pos, true);
     if (tree) {
       tmp.copy(tree.getPosition()).setY(pos.y);
       var min = TREE_RADIUS + NEAR_PLANE + 0.001;
@@ -149,10 +155,12 @@ class Player {
     this.controlsEnabled = enabled;
     if (enabled) {
       document.addEventListener('mousemove', this.mouseMoveHandler, false);
+      document.addEventListener('mousedown', this.mouseDownHandler, false);
       document.addEventListener('keydown', this.keyDownHandler, false);
       document.addEventListener('keyup', this.keyUpHandler, false);
     } else {
       document.removeEventListener('mousemove', this.mouseMoveHandler, false);
+      document.removeEventListener('mousedown', this.mouseDownHandler, false);
       document.removeEventListener('keydown', this.keyDownHandler, false);
       document.removeEventListener('keyup', this.keyUpHandler, false);
     }
@@ -172,6 +180,17 @@ class Player {
     this.pitchObject.rotation.x -= movementY * 0.005;
 
     this.pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, this.pitchObject.rotation.x));
+  }
+
+  private onMouseDown(event) {
+    if (!this.seed) return;
+    this.tmp.set(0, 0, -1);
+    this.pitchObject.localToWorld(this.tmp);
+    this.tmp2.set(0, 0, 0);
+    this.pitchObject.localToWorld(this.tmp2);
+    this.tmp.sub(this.tmp2);
+    this.seed.throwIt(this.tmp2, this.tmp);
+    this.seed = null;
   }
 
   private onKeyDown(event) {

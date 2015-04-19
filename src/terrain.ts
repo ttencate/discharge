@@ -13,7 +13,7 @@ class Terrain {
   private tiles: {[key: string]: Tile} = {};
   private smokes: Smoke[] = [];
 
-  constructor(private scene: THREE.Scene, private center: THREE.Object3D) {
+  constructor(public scene: THREE.Scene, private center: THREE.Object3D, private game: Game) {
   }
 
   update(delta: number) {
@@ -36,7 +36,7 @@ class Terrain {
         if (tile) {
           delete prevTiles[key];
         } else {
-          tile = new Tile(v.x, v.z, this.terragen);
+          tile = new Tile(v.x, v.z, this.terragen, this.game);
           this.scene.add(tile.getObject());
         }
         this.tiles[key] = tile;
@@ -75,7 +75,7 @@ class Terrain {
     }
   }
 
-  closestTree(pos): Tree {
+  closestTree(pos: THREE.Vector3, includeBurnt: boolean): Tree {
     var tx = Math.floor(pos.x / TILE_SIZE);
     var tz = Math.floor(pos.z / TILE_SIZE);
     var closest = null;
@@ -85,7 +85,7 @@ class Terrain {
         var key = (tx + dx) + ',' + (tz + dz);
         var tile = this.tiles[key];
         if (tile) {
-          var tree = tile.closestTree(pos);
+          var tree = tile.closestTree(pos, includeBurnt);
           if (tree) {
             var d = tree.distanceTo(pos);
             if (d < dist) {
@@ -98,6 +98,16 @@ class Terrain {
     }
     return closest;
   }
+
+  spawnTree(pos: THREE.Vector3) {
+    var tx = Math.floor(pos.x / TILE_SIZE);
+    var tz = Math.floor(pos.z / TILE_SIZE);
+    var key = tx + ',' + tz;
+    var tile = this.tiles[key];
+    if (tile) {
+      tile.spawnTree(pos, MIN_TREE_HEIGHT);
+    }
+  }
 }
 
 class Tile {
@@ -108,7 +118,7 @@ class Tile {
   private z: number;
   private trees: Tree[] = [];
 
-  constructor(tx: number, tz: number, terragen: Terragen) {
+  constructor(tx: number, tz: number, terragen: Terragen, private game: Game) {
     this.x = tx * TILE_SIZE;
     this.z = tz * TILE_SIZE;
 
@@ -153,26 +163,20 @@ class Tile {
       while (numTrees--) {
         treePos.x = this.x + TREE_RADIUS + random.float(TILE_SIZE - 2 * TREE_RADIUS);
         treePos.z = this.z + TREE_RADIUS + random.float(TILE_SIZE - 2 * TREE_RADIUS);
-        var closest = this.closestTree(treePos);
+        var closest = this.closestTree(treePos, true);
         if (closest && closest.distanceTo(treePos) < 2 * TREE_RADIUS) {
           continue;
         }
-        var height = this.heightAt(treePos);
-        var tree = new Tree(treePos.x, height, treePos.z, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT));
-        ((tree) => {
-          tree.onBurn = () => {
-            var i = this.trees.indexOf(tree);
-            if (i >= 0) {
-              this.trees.splice(i, 1);
-            } else {
-              console.error('no tree to splice');
-            }
-          }
-        })(tree);
-        this.trees.push(tree);
-        this.obj.add(tree.getObject());
+        this.spawnTree(treePos, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT));
       }
     }
+  }
+
+  spawnTree(pos: THREE.Vector3, h: number) {
+    var height = this.heightAt(pos);
+    var tree = new Tree(pos.x, height, pos.z, h, this.game);
+    this.trees.push(tree);
+    this.obj.add(tree.getObject());
   }
 
   destroy() {
@@ -207,14 +211,16 @@ class Tile {
     return lerp(a, b, fz);
   }
 
-  closestTree(pos: THREE.Vector3): Tree {
+  closestTree(pos: THREE.Vector3, includeBurnt: boolean): Tree {
     var closest = null;
     var dist = 1e99;
     for (var i = 0; i < this.trees.length; i++) {
-      var d = this.trees[i].distanceTo(pos);
+      var tree = this.trees[i];
+      if (!includeBurnt && tree.isBurnt()) continue;
+      var d = tree.distanceTo(pos);
       if (d < dist) {
         dist = d;
-        closest = this.trees[i];
+        closest = tree;
       }
     }
     return closest;

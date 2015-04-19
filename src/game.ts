@@ -14,8 +14,9 @@ class Game {
   private scene: THREE.Scene;
 
   private sky: Sky;
-  private terrain: Terrain;
+  public terrain: Terrain;
   private player: Player;
+  private seeds: Seed[] = [];
   private clouds: Cloud[] = [];
   private waypoint: Waypoint;
   private hud: HUD;
@@ -38,7 +39,7 @@ class Game {
 
     this.sky = new Sky(this.camera);
 
-    this.terrain = new Terrain(this.scene, this.camera);
+    this.terrain = new Terrain(this.scene, this.camera, this);
 
     this.player = new Player(this.camera, this.terrain);
     this.player.getObject().position.set(-646, 0, 100);
@@ -79,11 +80,23 @@ class Game {
     this.camera.updateProjectionMatrix();
   }
 
+  addSeed(seed: Seed) {
+    this.seeds.push(seed);
+    this.scene.add(seed.getObject());
+  }
+
   update(delta) {
     for (var i = 0; i < this.clouds.length; i++) {
       this.clouds[i].update(delta);
     }
     this.player.update(delta);
+    for (var i = 0; i < this.seeds.length; i++) {
+      this.seeds[i].update(delta, this.player, this.hud);
+      if (this.seeds[i].isGone()) {
+        this.seeds.splice(i, 1);
+        i--;
+      }
+    }
     this.terrain.update(delta);
     this.waypoint.update(delta);
     this.sky.update();

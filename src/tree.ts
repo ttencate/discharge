@@ -1,14 +1,15 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="seed.ts" />
 /// <reference path="sound.ts" />
 
 class Tree {
-  public onBurn: () => void;
-
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
   private sounds: THREE.Audio[] = [];
+  private burnt: boolean;
+  private seed: Seed;
 
-  constructor(x: number, y: number, z: number, private height: number) {
+  constructor(x: number, y: number, z: number, private height: number, private game: Game) {
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, y, z);
 
@@ -54,11 +55,13 @@ class Tree {
     return Math.sqrt(dx*dx + dz*dz);
   }
 
+  isBurnt(): boolean {
+    return this.burnt;
+  }
+
   burn() {
+    this.burnt = true;
     play(this.sounds[Math.floor(Math.random() * 3)]);
-    if (this.onBurn) {
-      this.onBurn();
-    }
     this.obj.remove(this.mesh);
 
     var burntMesh = new THREE.CylinderGeometry(TREE_RADIUS * 0.97, TREE_RADIUS, 4, 12, 1);
@@ -68,5 +71,10 @@ class Tree {
     });
     this.mesh = new THREE.Mesh(burntMesh, burntMaterial);
     this.obj.add(this.mesh);
+
+    var seed = new Seed(this.game.terrain);
+    seed.getObject().position.copy(this.obj.position);
+    seed.getObject().position.y += 2.5;
+    this.game.addSeed(seed);
   }
 }

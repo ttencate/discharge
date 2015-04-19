@@ -103,7 +103,6 @@ class Cloud {
     var h = this.terrain.heightAt(pos);
     v.y = 5.0 * (h + CLOUD_HEIGHT - pos.y);
 
-    // this.obj.translateX(delta * this.velocity.x);
     pos.y = Math.max(h + MIN_CLOUD_HEIGHT, pos.y);
     this.obj.translateZ(delta * this.velocity.z);
 
@@ -114,7 +113,7 @@ class Cloud {
           this.charge = 1;
           this.state = CloudState.DISCHARGING;
 
-          this.hitTree = this.terrain.closestTree(this.obj.position);
+          this.hitTree = this.terrain.closestTree(this.obj.position, false);
           var height = this.terrain.heightAt(this.obj.position);
           if (this.hitTree && this.hitTree.distanceTo(this.obj.position) < TREE_LIGHTNING_ATTRACTION_RADIUS) {
             this.hitTree.getTop(this.lightningTarget.position);
@@ -130,7 +129,7 @@ class Cloud {
           this.lightning.setVisible(true);
 
           if (planarDistance(this.lightningTarget.position, this.player.getPosition()) < LIGHTNING_DEADLY_DISTANCE) {
-            this.player.die();
+            // TODO!!! this.player.die();
           }
         }
         break;
@@ -155,9 +154,9 @@ class Cloud {
         break;
     }
 
-    //this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED;
-    //var scale = 0.6 + 0.6 * this.charge;
-    //this.mesh.scale.set(1, 1, scale);
+    this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED;
+    var scale = 0.6 + 0.6 * this.charge;
+    this.mesh.scale.set(1, 1, scale);
 
     this.lightning.update(delta);
   }
