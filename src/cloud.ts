@@ -23,8 +23,10 @@ class Cloud {
   private lightningTarget: THREE.Object3D;
   private hitTree: Tree;
 
+  private tmp: THREE.Vector3 = new THREE.Vector3();
+
   constructor(x: number, z: number, private player: Player, private terrain: Terrain) {
-    this.velocity.set(CLOUD_SPEED, 0, 0);
+    this.velocity.set(0, 0, MIN_CLOUD_SPEED);
 
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, 0, z);
@@ -80,26 +82,34 @@ class Cloud {
   }
 
   update(delta) {
-    var player = this.player.getPosition();
     var pos = this.obj.position;
     var v = this.velocity;
 
-    var dx = player.x - pos.x;
-    var dz = player.z - pos.z;
-    var d = dx * v.z - dz * v.x;
-    if (d < 0) {
-      v.applyAxisAngle(up, -delta * CLOUD_TURN_SPEED);
-    } else {
-      v.applyAxisAngle(up, delta * CLOUD_TURN_SPEED);
+    var tmp = this.tmp;
+    tmp.copy(this.player.getPosition());
+    this.obj.worldToLocal(tmp);
+    if (tmp.x > 0) {
+      console.log('left');
+      this.obj.rotation.y += delta * CLOUD_TURN_SPEED;
+    } else { 
+      console.log('right');
+      this.obj.rotation.y -= delta * CLOUD_TURN_SPEED;
     }
-    v.setLength(CLOUD_SPEED);
+    if (tmp.z > 0) {
+      console.log('faster');
+      v.z += delta * CLOUD_ACCELERATION;
+    } else {
+      console.log('slower');
+      v.z -= delta * CLOUD_ACCELERATION;
+    }
+    v.z = clamp(MIN_CLOUD_SPEED, MAX_CLOUD_SPEED, v.z);
 
     var h = this.terrain.heightAt(pos);
     v.y = 5.0 * (h + CLOUD_HEIGHT - pos.y);
 
-    pos.x += delta * v.x;
-    pos.y = Math.max(h + MIN_CLOUD_HEIGHT, pos.y + delta * v.y);
-    pos.z += delta * v.z;
+    // this.obj.translateX(delta * this.velocity.x);
+    pos.y = Math.max(h + MIN_CLOUD_HEIGHT, pos.y);
+    this.obj.translateZ(delta * this.velocity.z);
 
     switch (this.state) {
       case CloudState.CHARGING:
@@ -149,9 +159,9 @@ class Cloud {
         break;
     }
 
-    this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED;
-    var scale = 0.6 + 0.6 * this.charge;
-    this.mesh.scale.set(1, 1, scale);
+    //this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED;
+    //var scale = 0.6 + 0.6 * this.charge;
+    //this.mesh.scale.set(1, 1, scale);
 
     this.lightning.update(delta);
   }

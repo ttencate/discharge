@@ -27,6 +27,8 @@ class Waypoint {
 
     this.sound = new THREE.Audio(audioListener);
     this.sound.load('waypoint.ogg');
+    (<any>this.sound).setVolume(1.0);
+    this.sound.setRolloffFactor(0);
     this.obj.add(this.sound);
   }
 
