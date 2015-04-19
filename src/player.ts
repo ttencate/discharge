@@ -82,7 +82,7 @@ class Player {
 
     var pos = this.feet.position;
     //console.log(pos.x, pos.z);
-    var tree = this.terrain.closestTree(pos.x, pos.z);
+    var tree = this.terrain.closestTree(pos);
     if (tree) {
       tmp.copy(tree.getPosition()).setY(pos.y);
       var min = TREE_RADIUS + NEAR_PLANE + 0.001;

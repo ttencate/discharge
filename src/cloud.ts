@@ -11,6 +11,9 @@ enum CloudState {
   COOLDOWN,
 }
 
+var cloudMesh = null;
+var cloudMaterial = null;
+
 class Cloud {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
@@ -31,16 +34,16 @@ class Cloud {
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, this.terrain.heightAt(x, z) + CLOUD_HEIGHT, z);
 
-    this.mesh = new THREE.Mesh(
-        new THREE.TorusKnotGeometry(10, 7, 50, 8),
-        new THREE.MeshPhongMaterial({
-          color: 0x370124,
-          specular: 0xcf87b5,
-          emissive: 0x370124,
-          shininess: 5,
-          shading: THREE.FlatShading,
-          fog: false,
-        }));
+    cloudMesh = cloudMesh || new THREE.TorusKnotGeometry(10, 7, 50, 8);
+    cloudMaterial = cloudMaterial || new THREE.MeshPhongMaterial({
+      color: 0x370124,
+      specular: 0xcf87b5,
+      emissive: 0x370124,
+      shininess: 5,
+      shading: THREE.FlatShading,
+      fog: false,
+    });
+    this.mesh = new THREE.Mesh(cloudMesh, cloudMaterial);
     this.mesh.castShadow = true;
     this.mesh.rotation.x = -PI_2;
     this.obj.add(this.mesh);

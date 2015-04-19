@@ -20,6 +20,7 @@ class Lightning {
   private intensities: number[] = [];
   private light: THREE.PointLight;
   private meshIndex: number = -1;
+  private time: number = 0;
 
   constructor(direction: THREE.Vector3) {
     this.obj = new THREE.Object3D();
@@ -70,6 +71,12 @@ class Lightning {
   }
 
   update(delta) {
+    this.time += delta;
+    if (this.time < 1/60) {
+      return;
+    }
+    this.time = 0;
+
     if (this.meshIndex >= 0) {
       this.meshIndex += 1;
       this.meshIndex = this.meshIndex % (this.meshes.length * 2);
