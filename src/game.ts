@@ -27,7 +27,7 @@ class Game {
 
     this.scene.fog = new THREE.Fog(0xaa8a5e, 0.1, FOG_DISTANCE);
 
-    var ambientLight = new THREE.AmbientLight(0x370124);
+    var ambientLight = new THREE.AmbientLight(0x220016);
     this.scene.add(ambientLight);
 
     var light = new THREE.DirectionalLight(SUN_COLOR, 1.0);

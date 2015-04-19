@@ -10,8 +10,6 @@ var TILE_DISTANCE = TERRAIN_DISTANCE / TILE_SIZE + 1;
 var TREE_PROBABILITY = 0.3;
 var MIN_TREES_PER_TILE = 5;
 var MAX_TREES_PER_TILE = 20;
-var MIN_TREE_HEIGHT = 20;
-var MAX_TREE_HEIGHT = 30;
 
 class Terrain {
   private terragen: Terragen = new Terragen(new Random());
@@ -150,6 +148,16 @@ class Tile {
         }
         var height = this.heightAt(treePos);
         var tree = new Tree(treePos.x, height, treePos.z, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT));
+        ((tree) => {
+          tree.onBurn = () => {
+            var i = this.trees.indexOf(tree);
+            if (i >= 0) {
+              this.trees.splice(i, 1);
+            } else {
+              console.error('no tree to splice');
+            }
+          }
+        })(tree);
         this.trees.push(tree);
         this.obj.add(tree.getObject());
       }
