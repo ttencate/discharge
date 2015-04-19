@@ -115,20 +115,23 @@ class Cloud {
 
           this.hitTree = this.terrain.closestTree(this.obj.position, false);
           var height = this.terrain.heightAt(this.obj.position);
+          var dangerR;
           if (this.hitTree && this.hitTree.distanceTo(this.obj.position) < TREE_LIGHTNING_ATTRACTION_RADIUS) {
+            dangerR = 0.5 * LIGHTNING_DEADLY_DISTANCE;
             this.hitTree.getTop(this.lightningTarget.position);
             this.terrain.addSmoke(new Smoke(this.hitTree.getPosition().x, height, this.hitTree.getPosition().z, TREE_RADIUS, this.hitTree.getHeight(), 500, 0x0f000a));
           } else {
+            dangerR = LIGHTNING_DEADLY_DISTANCE;
             this.hitTree = null;
             this.lightningTarget.position.copy(this.obj.position);
             this.lightningTarget.position.y = height;
           }
-          this.terrain.addSmoke(new Smoke(this.lightningTarget.position.x, height, this.lightningTarget.position.z - 2, LIGHTNING_DEADLY_DISTANCE, 3, 500, 0x0f000a));
+          this.terrain.addSmoke(new Smoke(this.lightningTarget.position.x, height, this.lightningTarget.position.z - 2, dangerR, 3, 500, 0x0f000a));
           this.obj.parent.add(this.lightningTarget);
 
           this.lightning.setVisible(true);
 
-          if (planarDistance(this.lightningTarget.position, this.player.getPosition()) < LIGHTNING_DEADLY_DISTANCE) {
+          if (planarDistance(this.lightningTarget.position, this.player.getPosition()) < dangerR) {
             this.player.die();
           }
         }
