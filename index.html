@@ -10,8 +10,18 @@
     <div id="canvas">
     </div>
 
-    <div id="instructions" class="fullscreen overlay vcenter fade">
-      <div class="instructions">
+    <div id="overlay" class="fullscreen overlay vcenter fade">
+      <div id="loading" class="instructions">
+        Loading&hellip;
+      </div>
+
+      <div id="dead" class="instructions gone">
+        Game Over<br>
+        <br>
+        <span class="blink">Click to try again</span>
+      </div>
+
+      <div id="instructions" class="instructions gone">
         Mouse to look<br>
         WASD or arrow keys to move<br>
         <br>
@@ -19,15 +29,10 @@
         <br>
         <span class="blink">Click to start</span>
       </div>
+
       <footer>
         Discharge is an <a href="http://www.ludumdare.com/compo/ludum-dare-32/?action=preview&uid=7882">entry</a> for the <a href="http://ludumdare.com/compo/">Ludum Dare</a> <a href="http://www.ludumdare.com/compo/ludum-dare-32/">32</a> Compo by <a href="http://twitter.com/frozenfractal">@frozenfractal</a>.
       </footer>
-    </div>
-
-    <div id="loading" class="fullscreen black vcenter fade">
-      <div class="instructions">
-        Loading&hellip;
-      </div>
     </div>
 
     <script type="application/x-glsl" id="sky-vertex">

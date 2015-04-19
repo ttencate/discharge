@@ -5,23 +5,19 @@
 const up = new THREE.Vector3(0, 1, 0);
 
 enum CloudState {
-  IDLE,
   CHARGING,
   DISCHARGING,
   COOLDOWN,
 }
-
-var cloudMesh = null;
-var cloudMaterial = null;
 
 class Cloud {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
   private velocity: THREE.Vector3 = new THREE.Vector3();
 
-  private state: CloudState = CloudState.IDLE;
-  private charge: number;
-  private cooldown: number;
+  private state: CloudState = CloudState.CHARGING;
+  private charge: number = 0;
+  private cooldown: number = 0;
 
   private spot: THREE.SpotLight;
   private lightning: Lightning;
@@ -29,15 +25,15 @@ class Cloud {
   private hitTree: Tree;
 
   constructor(x: number, z: number, private player: Player, private terrain: Terrain) {
-    this.velocity.set(0, 0, -CLOUD_SPEED);
+    this.velocity.set(CLOUD_SPEED, 0, 0);
 
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, 0, z);
     this.obj.position.setY(this.terrain.heightAt(this.obj.position) + CLOUD_HEIGHT);
 
     var size = 10;
-    cloudMesh = cloudMesh || new THREE.TorusKnotGeometry(size, 7, 50, 8);
-    cloudMaterial = cloudMaterial || new THREE.MeshPhongMaterial({
+    var cloudMesh = new THREE.TorusKnotGeometry(size, 7, 50, 8);
+    var cloudMaterial = new THREE.MeshPhongMaterial({
       color: 0x370124,
       specular: 0xcf87b5,
       emissive: 0x370124,
@@ -109,15 +105,12 @@ class Cloud {
     pos.z += delta * v.z;
 
     switch (this.state) {
-      case CloudState.IDLE:
-        if (pos.distanceTo(player) < CLOUD_SPEED * CLOUD_CHARGE_TIME) {
-          this.state = CloudState.CHARGING;
-          this.charge = 0;
-        }
-        break;
       case CloudState.CHARGING:
         this.charge += delta / CLOUD_CHARGE_TIME;
         if (this.charge >= 1) {
+          this.charge = 1;
+          this.state = CloudState.DISCHARGING;
+
           this.hitTree = this.terrain.closestTree(this.obj.position);
           if (this.hitTree && this.hitTree.distanceTo(this.obj.position) < TREE_LIGHTNING_ATTRACTION_RADIUS) {
             this.hitTree.getTop(this.lightningTarget.position);
@@ -130,8 +123,9 @@ class Cloud {
 
           this.lightning.setVisible(true);
 
-          this.state = CloudState.DISCHARGING;
-          this.charge = 1;
+          if (planarDistance(this.lightningTarget.position, this.player.getPosition()) < LIGHTNING_DEADLY_DISTANCE) {
+            this.player.die();
+          }
         }
         break;
       case CloudState.DISCHARGING:
@@ -141,19 +135,23 @@ class Cloud {
             this.hitTree.burn();
           }
           this.lightning.setVisible(false);
-          this.state = CloudState.COOLDOWN;
+
           this.cooldown = 1;
+          this.state = CloudState.COOLDOWN;
         }
         break;
       case CloudState.COOLDOWN:
         this.cooldown -= delta / CLOUD_COOLDOWN_TIME;
         if (this.cooldown <= 0) {
-          this.state = CloudState.IDLE;
+          this.charge = 0;
+          this.state = CloudState.CHARGING;
         }
         break;
     }
 
-    this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED * (1 + 10 * this.charge);
+    this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED;
+    var scale = 0.6 + 0.6 * this.charge;
+    this.mesh.scale.set(1, 1, scale);
 
     this.spot.intensity = 1.5 + Math.random();
 

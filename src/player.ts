@@ -4,7 +4,13 @@
 var tmp = new THREE.Vector3();
 var tmp2 = new THREE.Vector3();
 
+enum PlayerState {
+  ALIVE,
+  DEAD
+}
+
 class Player {
+  private state: PlayerState = PlayerState.ALIVE;
   private feet: THREE.Object3D;
   private pitchObject: THREE.Object3D;
   private velocity: THREE.Vector3 = new THREE.Vector3();
@@ -16,6 +22,8 @@ class Player {
   private keysDown: {[key: number]: boolean} = {};
 
   private onGround: boolean;
+
+  private tmp: THREE.Vector3 = new THREE.Vector3();
 
   constructor(camera: THREE.Camera, private terrain: Terrain) {
     camera.rotation.set(0, 0, 0);
@@ -43,22 +51,24 @@ class Player {
   }
 
   update(delta) {
-    var d = new THREE.Vector3();
-    if (this.isKeyDown(controls.forwardKeys)) {
-      d.z--;
-    }
-    if (this.isKeyDown(controls.backwardKeys)) {
-      d.z++;
-    }
-    if (this.isKeyDown(controls.leftKeys)) {
-      d.x--;
-    }
-    if (this.isKeyDown(controls.rightKeys)) {
-      d.x++;
-    }
-    if (this.isKeyDown(controls.jumpKeys) && this.onGround) {
-      this.velocity.y = 3.0;
-      this.onGround = false;
+    var d = this.tmp.set(0, 0, 0);
+    if (this.state == PlayerState.ALIVE) {
+      if (this.isKeyDown(controls.forwardKeys)) {
+        d.z--;
+      }
+      if (this.isKeyDown(controls.backwardKeys)) {
+        d.z++;
+      }
+      if (this.isKeyDown(controls.leftKeys)) {
+        d.x--;
+      }
+      if (this.isKeyDown(controls.rightKeys)) {
+        d.x++;
+      }
+      if (this.isKeyDown(controls.jumpKeys) && this.onGround) {
+        this.velocity.y = 3.0;
+        this.onGround = false;
+      }
     }
     this.velocity.y -= delta * GRAVITY;
     if (d.length() != 0) {
@@ -81,12 +91,10 @@ class Player {
     }
 
     var pos = this.feet.position;
-    //console.log(pos.x, pos.z);
     var tree = this.terrain.closestTree(pos);
     if (tree) {
       tmp.copy(tree.getPosition()).setY(pos.y);
       var min = TREE_RADIUS + NEAR_PLANE + 0.001;
-      //console.log(tmp.distanceTo(pos));
       if (tmp.distanceTo(pos) < min) {
         tmp2.subVectors(pos, tmp);
         if (tmp2.x == 0 && tmp2.z == 0) tmp2.x = 1;
@@ -94,6 +102,19 @@ class Player {
         pos.addVectors(tmp, tmp2);
       }
     }
+
+    if (this.state == PlayerState.DEAD) {
+      this.pitchObject.position.y = Math.max(0.25, this.pitchObject.position.y - 2.0 * delta);
+    }
+  }
+
+  die() {
+    this.state = PlayerState.DEAD;
+    document.getElementById('dead').classList.remove('hidden');
+  }
+
+  isDead(): boolean {
+    return this.state == PlayerState.DEAD;
   }
 
   private isKeyDown(keys: number[]): boolean {

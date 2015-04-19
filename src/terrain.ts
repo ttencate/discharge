@@ -87,8 +87,6 @@ class Terrain {
   }
 }
 
-var terrainMaterial = null;
-
 class Tile {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
@@ -125,7 +123,7 @@ class Tile {
     geo.computeFaceNormals();
     geo.dynamic = false;
 
-    terrainMaterial = terrainMaterial || new THREE.MeshLambertMaterial({
+    var terrainMaterial = new THREE.MeshLambertMaterial({
       color: 0xaa7a39,
       shading: THREE.FlatShading,
     });

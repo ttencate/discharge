@@ -7,7 +7,6 @@
 
 class Game {
 
-  renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
 
@@ -17,14 +16,9 @@ class Game {
   private clouds: Cloud[] = [];
 
   constructor() {
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setClearColor(0xc0c0c0);
-    this.renderer.shadowMapEnabled = true;
-
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
+    this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
 
     this.scene = new THREE.Scene();
-
     this.scene.fog = new THREE.Fog(0xaa8a5e, 0.1, FOG_DISTANCE);
 
     var ambientLight = new THREE.AmbientLight(0x220016);
@@ -42,7 +36,7 @@ class Game {
     this.scene.add(this.player.getObject());
 
     for (var i = 0; i < 1; i++) {
-      var cloud = new Cloud(0, 0, this.player, this.terrain);
+      var cloud = new Cloud(0, -50, this.player, this.terrain);
       this.scene.add(cloud.getObject());
       this.clouds.push(cloud);
     }
@@ -50,8 +44,15 @@ class Game {
     this.update(0);
   }
 
+  destroy() {
+    this.player.setControlsEnabled(false);
+  }
+
+  isOver(): boolean {
+    return this.player.isDead();
+  }
+
   resize() {
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
   }
@@ -65,8 +66,12 @@ class Game {
     this.sky.update();
   }
 
-  render() {
-    this.renderer.render(this.scene, this.camera);
+  getScene(): THREE.Scene {
+    return this.scene;
+  }
+
+  getCamera(): THREE.Camera {
+    return this.camera;
   }
 
   setControlsEnabled(enabled: boolean) {

@@ -1,10 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-var treeMesh = null;
-var treeMaterial = null;
-var burntMesh = null;
-var burntMaterial = null;
-
 class Tree {
   public onBurn: () => void;
 
@@ -15,8 +10,8 @@ class Tree {
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, y, z);
 
-    treeMesh = treeMesh || new THREE.CylinderGeometry(TREE_RADIUS/4, TREE_RADIUS, 1, 12, 1);
-    treeMaterial = treeMaterial || new THREE.MeshPhongMaterial({
+    var treeMesh = new THREE.CylinderGeometry(TREE_RADIUS/4, TREE_RADIUS, 1, 12, 1);
+    var treeMaterial = new THREE.MeshPhongMaterial({
       color: 0x4f0937,
       shading: THREE.FlatShading,
     });
@@ -51,8 +46,8 @@ class Tree {
     }
     this.obj.remove(this.mesh);
 
-    burntMesh = burntMesh || new THREE.CylinderGeometry(TREE_RADIUS * 0.97, TREE_RADIUS, 4, 12, 1);
-    burntMaterial = treeMaterial || new THREE.MeshPhongMaterial({
+    var burntMesh = new THREE.CylinderGeometry(TREE_RADIUS * 0.97, TREE_RADIUS, 4, 12, 1);
+    var burntMaterial = new THREE.MeshPhongMaterial({
       color: 0x000000,
       shading: THREE.FlatShading,
     });
