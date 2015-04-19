@@ -4,6 +4,7 @@
 /// <reference path="player.ts" />
 /// <reference path="sky.ts" />
 /// <reference path="terrain.ts" />
+/// <reference path="waypoint.ts" />
 
 class Game {
 
@@ -14,6 +15,7 @@ class Game {
   private terrain: Terrain;
   private player: Player;
   private clouds: Cloud[] = [];
+  private path: Path;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
@@ -41,6 +43,13 @@ class Game {
       this.clouds.push(cloud);
     }
 
+    this.path = new Path(this.terrain, this.player);
+    this.path.addWaypoint(-50, 0);
+    this.path.addWaypoint(-50, 50);
+    this.path.addWaypoint(50, 50);
+    this.path.addWaypoint(50, -50);
+    this.scene.add(this.path.getObject());
+
     this.update(0);
   }
 
@@ -63,6 +72,7 @@ class Game {
       this.clouds[i].update(delta);
     }
     this.player.update(delta);
+    this.path.update(delta);
     this.sky.update();
   }
 

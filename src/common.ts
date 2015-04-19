@@ -27,6 +27,8 @@ var TREE_LIGHTNING_ATTRACTION_RADIUS = MAX_TREE_HEIGHT;
 
 var LIGHTNING_DEADLY_DISTANCE = 5.0;
 
+var WAYPOINT_RADIUS = 10.0;
+
 var PI_2 = Math.PI / 2;
 
 function k(s: string): number {
