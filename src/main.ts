@@ -106,6 +106,7 @@ function resize() {
 var clock = new THREE.Clock();
 function render() {
   var delta = clock.getDelta();
+  if (delta > 1/20) delta = 1/20;
   if (locked || game.isOver()) {
     game.update(delta);
   }
