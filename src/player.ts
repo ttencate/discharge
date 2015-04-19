@@ -80,9 +80,18 @@ class Player {
         console.log(Math.round(this.feet.position.x), Math.round(this.feet.position.z));
       }
     }
+
     this.velocity.y -= delta * GRAVITY;
+
+    var terrainHeight = this.terrain.heightAt(this.feet.position);
     if (d.length() != 0) {
-      d.setLength(WALK_SPEED);
+      this.velocity.x = d.x;
+      this.velocity.z = d.z;
+
+      d.setLength(0.1).add(this.feet.position);
+      var slope = (this.terrain.heightAt(d) - terrainHeight) / 0.1;
+
+      d.set(this.velocity.x, 0, this.velocity.z).setLength(WALK_SPEED * clamp(0, 2, 1 - slope));
       this.velocity.x = d.x;
       this.velocity.z = d.z;
     } else {
@@ -93,7 +102,6 @@ class Player {
     this.feet.translateY(delta * this.velocity.y);
     this.feet.translateZ(delta * this.velocity.z);
 
-    var terrainHeight = this.terrain.heightAt(this.feet.position);
     if (this.feet.position.y < terrainHeight) {
       this.feet.position.y = terrainHeight;
       this.velocity.y = 0;
