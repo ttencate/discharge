@@ -1,10 +1,13 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="random.ts" />
 /// <reference path="tree.ts" />
 
-var TILE_SIZE = 32;
-var TILE_SUBDIVISIONS = 32;
+var TILE_SIZE = 64;
+var TILE_SUBDIVISIONS = 64;
 var TILE_VERTS = TILE_SUBDIVISIONS + 1;
 var TILE_DISTANCE = TERRAIN_DISTANCE / TILE_SIZE + 1;
+var TREE_PROBABILITY = 0.5;
+var MAX_TREES_PER_TILE = 12;
 
 class Terrain {
   private terragen: Terragen = new Terragen(new Random());
@@ -79,11 +82,6 @@ class Tile {
       for (var x = 0; x < TILE_VERTS; x++) {
         var height = terragen.heightAt(this.x + x / TILE_SUBDIVISIONS * TILE_SIZE, this.z + z / TILE_SUBDIVISIONS * TILE_SIZE);
         this.heightmap[x + TILE_VERTS * z] = height;
-        if (terragen.treeAt(height)) {
-          var tree = new Tree(x * TILE_SIZE / TILE_SUBDIVISIONS, height, z * TILE_SIZE / TILE_SUBDIVISIONS);
-          this.trees.push(tree);
-          this.obj.add(tree.getObject());
-        }
       }
     }
 
@@ -107,6 +105,30 @@ class Tile {
     }));
     this.mesh.receiveShadow = true;
     this.obj.add(this.mesh);
+
+    var random = new Random(2579 * tx + 7919 * tz);
+    if (random.boolean(TREE_PROBABILITY)) {
+      var woodsRadius = random.float(TILE_SIZE / 4, TILE_SIZE / 2);
+      var woodsX = random.float(woodsRadius + TREE_RADIUS, TILE_SIZE - woodsRadius - TREE_RADIUS);
+      var woodsZ = random.float(woodsRadius + TREE_RADIUS, TILE_SIZE - woodsRadius - TREE_RADIUS);
+      var numTrees = random.int(1, MAX_TREES_PER_TILE + 1);
+      var treePos = new THREE.Vector3();
+      while (numTrees--) {
+        treePos.x = woodsX + random.float(woodsRadius);
+        treePos.z = woodsZ + random.float(woodsRadius);
+        var closest = this.closestTree(treePos.x, treePos.z);
+        if (closest) {
+          treePos.y = closest.getPosition().y;
+          if (closest.getPosition().distanceTo(treePos) < 2 * TREE_RADIUS) {
+            continue;
+          }
+        }
+        var height = this.heightAt(treePos.x, treePos.z);
+        var tree = new Tree(treePos.x, height, treePos.z);
+        this.trees.push(tree);
+        this.obj.add(tree.getObject());
+      }
+    }
   }
 
   destroy() {
@@ -137,6 +159,22 @@ class Tile {
     var a = lerp(this.heightmap[ix + TILE_VERTS * iz], this.heightmap[ix + 1 + TILE_VERTS * iz], fx);
     var b = lerp(this.heightmap[ix + TILE_VERTS * (iz + 1)], this.heightmap[ix + 1 + TILE_VERTS * (iz + 1)], fx);
     return lerp(a, b, fz);
+  }
+
+  closestTree(x: number, z: number): Tree {
+    var closest = null;
+    var dist = 1e99;
+    for (var i = 0; i < this.trees.length; i++) {
+      var tp = this.trees[i].getPosition();
+      var dx = tp.x - x;
+      var dz = tp.z - z;
+      var d = dx*dx + dz*dz;
+      if (d < dist) {
+        dist = d;
+        closest = this.trees[i];
+      }
+    }
+    return closest;
   }
 }
 
@@ -176,10 +214,6 @@ class Terragen {
       exponent = Math.pow(exponent, random.float(0.5, 1.0));
     }
   }
-
-  treeAt(height: number): boolean {
-    return height < AMP / 2 && (height * 1000) % 1 < 0.001;
-  }
    
   heightAt(x: number, z: number): number {
     var v = this.v;
@@ -204,26 +238,5 @@ class Terragen {
       amplitude /= 2;
     }
     return sum;
-  }
-}
-
-class Random {
-  private seed: number;
-
-  constructor(seed?: number) {
-    this.seed = seed || 1;
-  }
-
-  float(min?: number, max?: number) {
-    if (min === undefined) {
-      min = 0;
-      max = 1;
-    } else if (max === undefined) {
-      max = min;
-      min = 0;
-    }
-    var x = Math.sin(this.seed++) * 10000;
-    x -= Math.floor(x);
-    return min + (max - min) * x;
   }
 }

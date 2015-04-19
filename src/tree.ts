@@ -17,4 +17,8 @@ class Tree {
   getObject(): THREE.Object3D {
     return this.mesh;
   }
+
+  getPosition(): THREE.Vector3 {
+    return this.getObject().position;
+  }
 }

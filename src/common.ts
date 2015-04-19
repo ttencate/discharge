@@ -7,7 +7,7 @@ var SUN_POSITION = new THREE.Vector3(-5, 1, 0);
 var SUN_COLOR = 0xaa9f8f;
 
 var GRAVITY = 9.81;
-var WALK_SPEED = 4.0;
+var WALK_SPEED = 5.0;
 var SLOW_DOWN_FACTOR = 0.8;
 
 var CLOUD_HEIGHT = 50;
@@ -19,6 +19,8 @@ var CLOUD_ROTATE_ACCEL = 100.0;
 var CLOUD_CHARGE_TIME = 3.0;
 var CLOUD_DISCHARGE_TIME = 0.5;
 var CLOUD_COOLDOWN_TIME = 3.0;
+
+var TREE_RADIUS = 2.0;
 
 var PI_2 = Math.PI / 2;
 
