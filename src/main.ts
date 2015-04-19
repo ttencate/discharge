@@ -1,4 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="common.ts" />
 /// <reference path="game.ts" />
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
@@ -11,6 +12,14 @@ var renderer = new THREE.WebGLRenderer();
 renderer.shadowMapEnabled = true;
 document.getElementById('canvas').appendChild(renderer.domElement);
 
+function startFromHash() {
+  var m = window.location.hash.match(/#(\d+)/);
+  if (m && m[1]) {
+    return clamp(0, 11, parseInt(m[1]));
+  }
+  return 0;
+}
+
 var game = null;
 function newGame() {
   if (game) {
@@ -18,7 +27,7 @@ function newGame() {
     game = null;
   }
 
-  game = new Game();
+  game = new Game(startFromHash());
   resize();
 
   unlock();

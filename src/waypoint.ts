@@ -9,7 +9,7 @@ class Waypoint {
     this.obj.position.copy(pos);
 
     var mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(WAYPOINT_RADIUS, WAYPOINT_RADIUS, 10, 24, 1, true),
+        new THREE.CylinderGeometry(WAYPOINT_RADIUS, WAYPOINT_RADIUS, 20, 24, 1, true),
         new THREE.MeshPhongMaterial({
           emissive: 0xaa1700,
           transparent: true,
@@ -18,7 +18,7 @@ class Waypoint {
           depthWrite: false,
           blending: THREE.AdditiveBlending,
         }));
-    mesh.position.y = 0;
+    mesh.position.y = -10;
     this.obj.add(mesh);
   }
 
@@ -33,13 +33,14 @@ class Waypoint {
 
 class Path {
   private waypoints: Waypoint[] = [];
-  private index: number = 0;
+  private index: number;
   private obj: THREE.Object3D;
 
   private tmp: THREE.Vector3 = new THREE.Vector3();
 
-  constructor(private terrain: Terrain, private player: Player) {
+  constructor(private terrain: Terrain, private player: Player, start: number) {
     this.obj = new THREE.Object3D();
+    this.index = start;
   }
 
   getObject(): THREE.Object3D {
@@ -50,11 +51,14 @@ class Path {
     this.tmp.set(x, 0, z);
     this.tmp.y = this.terrain.heightAt(this.tmp);
     var w = new Waypoint(this.tmp, final || false);
-    if (this.waypoints.length == 0) {
+    if (this.waypoints.length == this.index) {
       this.obj.add(w.getObject());
-      this.index = 0;
     }
     this.waypoints.push(w);
+  }
+
+  getWaypoint(i: number) {
+    return this.waypoints[i];
   }
 
   numWaypoints(): number {
@@ -74,6 +78,7 @@ class Path {
     if (w && planarDistance(this.player.getPosition(), w.getPosition()) <= WAYPOINT_RADIUS) {
       this.obj.remove(w.getObject());
       this.index++;
+      window.location.hash = '#' + this.index;
       if (this.waypoints[this.index]) {
         this.obj.add(this.waypoints[this.index].getObject());
       }

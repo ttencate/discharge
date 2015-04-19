@@ -19,7 +19,7 @@ class Game {
   private path: Path;
   private hud: HUD;
 
-  constructor() {
+  constructor(start: number) {
     this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
 
     this.scene = new THREE.Scene();
@@ -37,17 +37,8 @@ class Game {
     this.terrain = new Terrain(this.scene, this.camera);
 
     this.player = new Player(this.camera, this.terrain);
-    this.player.getObject().position.set(104, 0, -26);
-    this.player.getObject().rotation.y = Math.PI/2;
-    this.scene.add(this.player.getObject());
 
-    for (var i = 0; i < 1; i++) {
-      var cloud = new Cloud(11, 24, this.player, this.terrain);
-      this.scene.add(cloud.getObject());
-      this.clouds.push(cloud);
-    }
-
-    this.path = new Path(this.terrain, this.player);
+    this.path = new Path(this.terrain, this.player, start);
     this.path.addWaypoint(71, -74);
     this.path.addWaypoint(20, -147);
     this.path.addWaypoint(101, -193);
@@ -61,6 +52,22 @@ class Game {
     this.path.addWaypoint(1001, -616);
     this.path.addWaypoint(1058, -577, true);
     this.scene.add(this.path.getObject());
+
+    if (start > 0) {
+      this.player.getObject().position.copy(this.path.getWaypoint(start - 1).getPosition());
+    } else {
+      this.player.getObject().position.set(104, 0, -26);
+    }
+    this.player.getObject().rotation.y = Math.PI/2;
+    this.player.getObject().updateMatrix();
+    this.player.getObject().updateMatrixWorld(true);
+    this.scene.add(this.player.getObject());
+
+    for (var i = 0; i < 1; i++) {
+      var cloud = new Cloud(this.player.getPosition().x - 93, this.player.getPosition().z + 50, this.player, this.terrain);
+      this.scene.add(cloud.getObject());
+      this.clouds.push(cloud);
+    }
 
     this.hud = new HUD(this.path);
     this.camera.add(this.hud.getObject());
@@ -82,11 +89,11 @@ class Game {
   }
 
   update(delta) {
-    this.terrain.update(delta);
     for (var i = 0; i < this.clouds.length; i++) {
       this.clouds[i].update(delta);
     }
     this.player.update(delta);
+    this.terrain.update(delta);
     this.path.update(delta);
     this.sky.update();
     this.hud.update(delta);
