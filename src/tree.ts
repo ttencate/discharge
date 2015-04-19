@@ -9,13 +9,13 @@ class Tree {
   private burnt: boolean;
   private seed: Seed;
 
-  constructor(x: number, y: number, z: number, private height: number, private game: Game) {
+  constructor(x: number, y: number, z: number, private height: number, private game: Game, private young: boolean) {
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, y, z);
 
     var treeMesh = new THREE.CylinderGeometry(TREE_RADIUS/4, TREE_RADIUS, 1, 12, 1);
     var treeMaterial = new THREE.MeshPhongMaterial({
-      color: 0x4f0937,
+      color: young ? 0xbd73a3 : 0x4f0937,
       shading: THREE.FlatShading,
     });
     this.mesh = new THREE.Mesh(treeMesh, treeMaterial);
@@ -72,9 +72,11 @@ class Tree {
     this.mesh = new THREE.Mesh(burntMesh, burntMaterial);
     this.obj.add(this.mesh);
 
-    var seed = new Seed(this.game.terrain);
-    seed.getObject().position.copy(this.obj.position);
-    seed.getObject().position.y += 2.5;
-    this.game.addSeed(seed);
+    if (!this.young) {
+      var seed = new Seed(this.game.terrain);
+      seed.getObject().position.copy(this.obj.position);
+      seed.getObject().position.y += 2.5;
+      this.game.addSeed(seed);
+    }
   }
 }

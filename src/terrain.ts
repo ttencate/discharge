@@ -105,7 +105,7 @@ class Terrain {
     var key = tx + ',' + tz;
     var tile = this.tiles[key];
     if (tile) {
-      tile.spawnTree(pos, MIN_TREE_HEIGHT);
+      tile.spawnTree(pos, MIN_TREE_HEIGHT, true);
     }
   }
 }
@@ -167,14 +167,14 @@ class Tile {
         if (closest && closest.distanceTo(treePos) < 2 * TREE_RADIUS) {
           continue;
         }
-        this.spawnTree(treePos, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT));
+        this.spawnTree(treePos, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT), false);
       }
     }
   }
 
-  spawnTree(pos: THREE.Vector3, h: number) {
+  spawnTree(pos: THREE.Vector3, h: number, young: boolean) {
     var height = this.heightAt(pos);
-    var tree = new Tree(pos.x, height, pos.z, h, this.game);
+    var tree = new Tree(pos.x, height, pos.z, h, this.game, young);
     this.trees.push(tree);
     this.obj.add(tree.getObject());
   }

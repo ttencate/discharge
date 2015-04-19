@@ -30,7 +30,7 @@ class Seed {
     this.mesh = new THREE.Mesh(
         new THREE.OctahedronGeometry(2.0, 0),
         new THREE.MeshPhongMaterial({
-          color: 0x4f0937,
+          color: 0xbd73a3,
           shading: THREE.FlatShading,
         }));
     this.obj.add(this.mesh);

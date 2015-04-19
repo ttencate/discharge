@@ -129,7 +129,7 @@ class Cloud {
           this.lightning.setVisible(true);
 
           if (planarDistance(this.lightningTarget.position, this.player.getPosition()) < LIGHTNING_DEADLY_DISTANCE) {
-            // TODO!!! this.player.die();
+            this.player.die();
           }
         }
         break;
