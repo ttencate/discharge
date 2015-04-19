@@ -34,6 +34,10 @@ class Tree {
     out.y += this.height - 1;
   }
 
+  getHeight(): number {
+    return this.height;
+  }
+
   distanceTo(pos: THREE.Vector3): number {
     var dx = pos.x - this.obj.position.x;
     var dz = pos.z - this.obj.position.z;
@@ -48,7 +52,7 @@ class Tree {
 
     var burntMesh = new THREE.CylinderGeometry(TREE_RADIUS * 0.97, TREE_RADIUS, 4, 12, 1);
     var burntMaterial = new THREE.MeshPhongMaterial({
-      color: 0x000000,
+      color: 0x220016,
       shading: THREE.FlatShading,
     });
     this.mesh = new THREE.Mesh(burntMesh, burntMaterial);

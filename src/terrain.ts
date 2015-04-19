@@ -1,5 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="random.ts" />
+/// <reference path="smoke.ts" />
 /// <reference path="tree.ts" />
 
 var TILE_SIZE = 64;
@@ -14,11 +15,12 @@ var MAX_TREES_PER_TILE = 20;
 class Terrain {
   private terragen: Terragen = new Terragen(new Random());
   private tiles: {[key: string]: Tile} = {};
+  private smokes: Smoke[] = [];
 
   constructor(private scene: THREE.Scene, private center: THREE.Object3D) {
   }
 
-  update() {
+  update(delta: number) {
     var center = new THREE.Vector3();
     this.center.localToWorld(center);
     center.x = center.x / TILE_SIZE - 0.5;
@@ -48,6 +50,21 @@ class Terrain {
     for (key in prevTiles) {
       prevTiles[key].destroy();
     }
+
+    for (var i = 0; i < this.smokes.length; i++) {
+      var smoke = this.smokes[i];
+      smoke.update(delta);
+      if (smoke.isExpired()) {
+        this.scene.remove(smoke.getObject());
+        this.smokes.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
+  addSmoke(smoke: Smoke) {
+    this.smokes.push(smoke);
+    this.scene.add(smoke.getObject());
   }
 
   heightAt(pos: THREE.Vector3): number {

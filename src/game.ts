@@ -58,7 +58,7 @@ class Game {
   }
 
   update(delta) {
-    this.terrain.update();
+    this.terrain.update(delta);
     for (var i = 0; i < this.clouds.length; i++) {
       this.clouds[i].update(delta);
     }
