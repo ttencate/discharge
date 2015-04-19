@@ -33,6 +33,7 @@ class Waypoint {
 
 class Path {
   private waypoints: Waypoint[] = [];
+  private index: number = 0;
   private obj: THREE.Object3D;
 
   private tmp: THREE.Vector3 = new THREE.Vector3();
@@ -51,24 +52,30 @@ class Path {
     var w = new Waypoint(this.tmp);
     if (this.waypoints.length == 0) {
       this.obj.add(w.getObject());
+      this.index = 0;
     }
     this.waypoints.push(w);
   }
 
+  numWaypoints(): number {
+    return this.waypoints.length;
+  }
+
+  waypointIndex(): number {
+    return this.index;
+  }
+
   currentWaypoint(): Waypoint {
-    if (this.waypoints.length == 0) return null;
-    return this.waypoints[0];
+    return this.waypoints[this.index];
   }
 
   update(delta: number) {
-    if (this.waypoints.length > 0) {
-      var w = this.waypoints[0];
-      if (planarDistance(this.player.getPosition(), w.getPosition()) <= WAYPOINT_RADIUS) {
-        this.obj.remove(w.getObject());
-        this.waypoints.shift();
-        if (this.waypoints.length > 0) {
-          this.obj.add(this.waypoints[0].getObject());
-        }
+    var w = this.waypoints[this.index];
+    if (w && planarDistance(this.player.getPosition(), w.getPosition()) <= WAYPOINT_RADIUS) {
+      this.obj.remove(w.getObject());
+      this.index++;
+      if (this.waypoints[this.index]) {
+        this.obj.add(this.waypoints[this.index].getObject());
       }
     }
   }
