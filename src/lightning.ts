@@ -75,7 +75,7 @@ class Lightning {
 
   setVisible(visible: boolean) {
     if (visible) {
-      (<any>this.sounds[Math.floor(Math.random() * 3)]).play();
+      play(this.sounds[Math.floor(Math.random() * 3)]);
       this.meshIndex = 0;
     } else {
       this.meshIndex = -1;

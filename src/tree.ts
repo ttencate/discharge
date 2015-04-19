@@ -55,7 +55,7 @@ class Tree {
   }
 
   burn() {
-    (<any>this.sounds[Math.floor(Math.random() * 3)]).play();
+    play(this.sounds[Math.floor(Math.random() * 3)]);
     if (this.onBurn) {
       this.onBurn();
     }

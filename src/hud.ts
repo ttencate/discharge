@@ -8,7 +8,7 @@ class HUD {
 
   private tmp: THREE.Vector3 = new THREE.Vector3();
 
-  constructor(private path: Path) {
+  constructor(private waypoint: Waypoint) {
     this.obj = new THREE.Object3D();
     this.obj.position.set(0, 0, -0.2);
 
@@ -42,59 +42,40 @@ class HUD {
     this.arrow.position.set(0, -0.15, 0);
     this.arrow.rotation.x = -Math.PI/2;
     this.obj.add(this.arrow);
-
-    var n = this.path.numWaypoints();
-    for (var i = 0; i < n; i++) {
-      var marker = new THREE.Mesh(
-          new THREE.SphereGeometry(0.005),
-          new THREE.MeshPhongMaterial({
-            emissive: 0xaa1700,
-            transparent: true,
-            opacity: 0.5,
-            //side: THREE.DoubleSide,
-            depthWrite: false,
-            depthTest: false,
-            blending: THREE.AdditiveBlending,
-          }));
-      marker.position.set(0.02 * (i - (n-1)/2), -0.18, 0);
-      this.obj.add(marker);
-      this.markers.push(marker);
-    }
   }
 
   getObject(): THREE.Object3D {
     return this.obj;
   }
 
-  private lastIndex: number = -1;
-
   update(delta) {
-    var w = this.path.currentWaypoint();
-    if (w) {
-      this.tmp.copy(w.getPosition());
-      this.arrow.parent.worldToLocal(this.tmp);
-      this.tmp.normalize();
-      this.arrow.quaternion.setFromUnitVectors(Y_AXIS, this.tmp);
-    } else {
-      this.arrow.rotation.z += delta;
-      this.arrow.rotation.x += delta;
-    }
+    this.tmp.copy(this.waypoint.getPosition());
+    this.arrow.parent.worldToLocal(this.tmp);
+    this.tmp.normalize();
+    this.arrow.quaternion.setFromUnitVectors(Y_AXIS, this.tmp);
 
-    var idx = this.path.waypointIndex();
-    if (idx != this.lastIndex) {
-      this.lastIndex = idx;
+    var cnt = this.waypoint.getCount();
+    if (cnt != this.markers.length) {
       for (var i = 0; i < this.markers.length; i++) {
-        var mat = <THREE.MeshPhongMaterial>this.markers[i].material;
-        if (i == idx) {
-          mat.emissive = new THREE.Color(0xaa1700);
-          mat.opacity = 0.8;
-        } else if (i < idx) {
-          mat.emissive = new THREE.Color(0xaa928f);
-          mat.opacity = 0.2;
-        } else {
-          mat.emissive = new THREE.Color(0xaa1700);
-          mat.opacity = 0.2;
-        }
+        this.obj.remove(this.markers[i]);
+      }
+      this.markers = [];
+
+      for (var i = 0; i < cnt; i++) {
+        var marker = new THREE.Mesh(
+            new THREE.SphereGeometry(0.005),
+            new THREE.MeshPhongMaterial({
+              emissive: 0xaa1700,
+              transparent: true,
+              opacity: 0.5,
+              side: THREE.DoubleSide,
+              depthWrite: false,
+              depthTest: false,
+              blending: THREE.AdditiveBlending,
+            }));
+        marker.position.set(0.02 * (i - (cnt-1)/2), -0.18, 0);
+        this.obj.add(marker);
+        this.markers.push(marker);
       }
     }
   }

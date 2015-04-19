@@ -13,14 +13,6 @@ var renderer = new THREE.WebGLRenderer();
 renderer.shadowMapEnabled = true;
 document.getElementById('canvas').appendChild(renderer.domElement);
 
-function startFromHash() {
-  var m = window.location.hash.match(/#(\d+)/);
-  if (m && m[1]) {
-    return clamp(0, 11, parseInt(m[1]));
-  }
-  return 0;
-}
-
 var game = null;
 function newGame() {
   if (game) {
@@ -28,7 +20,7 @@ function newGame() {
     game = null;
   }
 
-  game = new Game(startFromHash());
+  game = new Game();
   resize();
 
   unlock();
@@ -82,11 +74,16 @@ function unlock() {
   doc.exitPointerLock();
 }
 
+var overlayScore = null;
 function updateOverlay() {
   if (!game) {
     setOverlay('loading');
   } else if (game.isOver()) {
     setOverlay('dead');
+    if (game.getScore() !== overlayScore) {
+      overlayScore = game.getScore();
+      document.getElementById('score').innerHTML = '' + game.getScore();
+    }
   } else if (!locked) {
     setOverlay('instructions');
   } else {

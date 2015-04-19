@@ -8,10 +8,6 @@ var TILE_SUBDIVISIONS = 64;
 var TILE_VERTS = TILE_SUBDIVISIONS + 1;
 var TILE_DISTANCE = TERRAIN_DISTANCE / TILE_SIZE + 1;
 
-var TREE_PROBABILITY = 0.3;
-var MIN_TREES_PER_TILE = 5;
-var MAX_TREES_PER_TILE = 20;
-
 class Terrain {
   private terragen: Terragen = new Terragen(new Random());
   private tiles: {[key: string]: Tile} = {};
