@@ -37,7 +37,6 @@ class Player {
 
     this.wind = new THREE.Audio(audioListener);
     this.wind.load('wind.ogg');
-    (<any>this.wind).autoplay = true;
     (<any>this.wind).setVolume(0.3);
     this.wind.setLoop(true);
     camera.add(this.wind);
@@ -158,11 +157,13 @@ class Player {
       document.addEventListener('mousedown', this.mouseDownHandler, false);
       document.addEventListener('keydown', this.keyDownHandler, false);
       document.addEventListener('keyup', this.keyUpHandler, false);
+      play(this.wind);
     } else {
       document.removeEventListener('mousemove', this.mouseMoveHandler, false);
       document.removeEventListener('mousedown', this.mouseDownHandler, false);
       document.removeEventListener('keydown', this.keyDownHandler, false);
       document.removeEventListener('keyup', this.keyUpHandler, false);
+      (<any>this.wind).stop();
     }
   }
 
