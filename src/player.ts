@@ -73,7 +73,7 @@ class Player {
     this.feet.translateY(delta * this.velocity.y);
     this.feet.translateZ(delta * this.velocity.z);
 
-    var terrainHeight = this.terrain.heightAt(this.feet.position.x, this.feet.position.z);
+    var terrainHeight = this.terrain.heightAt(this.feet.position);
     if (this.feet.position.y < terrainHeight) {
       this.feet.position.y = terrainHeight;
       this.velocity.y = 0;

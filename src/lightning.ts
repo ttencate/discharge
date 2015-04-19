@@ -1,5 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 
+const X_AXIS = new THREE.Vector3(1, 0, 0);
+
 function displace(points: THREE.Vector3[], start: number, end: number, offset: number) {
   if (end - start < 2) {
     return;
@@ -22,26 +24,28 @@ class Lightning {
   private meshIndex: number = -1;
   private time: number = 0;
 
-  constructor(direction: THREE.Vector3) {
+  private a: THREE.Vector3 = new THREE.Vector3();
+  private b: THREE.Vector3 = new THREE.Vector3();
+
+  constructor(private target: THREE.Object3D) {
     this.obj = new THREE.Object3D();
     for (var i = 0; i < 4; i++) {
-      var r = 0.2 * direction.length();
       var points = [];
-      const N = 33;
-      for (var j = 0; j < N; j++) {
-        points.push(direction.clone().multiplyScalar(j / N));
+      const N = 32;
+      for (var j = 0; j <= N; j++) {
+        points.push(X_AXIS.clone().multiplyScalar(j / (N+1)));
       }
-      displace(points, 0, N - 1, r);
+      displace(points, 0, N, 0.1);
 
-      var tube = new THREE.TubeGeometry(<any>new THREE.SplineCurve3(points), 50, 2, 8, false);
+      var tube = new THREE.TubeGeometry(<any>new THREE.SplineCurve3(points), N, 0.04, 8, false);
       tube.computeVertexNormals();
       var mesh = new THREE.Mesh(
           tube,
           new THREE.ShaderMaterial({
             vertexShader: document.getElementById('lightning-vertex').textContent,
             fragmentShader: document.getElementById('lightning-fragment').textContent,
-            blending: THREE.AdditiveBlending,
             side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
             transparent: true,
             depthWrite: false,
           }));
@@ -53,8 +57,7 @@ class Lightning {
       this.intensities[i] = 8.0 + 4.0 * Math.random();
     }
 
-    this.light = new THREE.PointLight(0xddeeff, 0.0, 1.5 * direction.length());
-    this.light.position.copy(direction).multiplyScalar(0.5);
+    this.light = new THREE.PointLight(0xddeeff, 0.0, 0.0);
     this.obj.add(this.light);
   }
 
@@ -71,6 +74,18 @@ class Lightning {
   }
 
   update(delta) {
+    var target = this.b.set(0, 0, 0);
+    this.target.localToWorld(target);
+    this.obj.parent.worldToLocal(target);
+
+    var s = target.length();
+    this.obj.scale.set(s, s, s);
+
+    target.normalize();
+    this.obj.quaternion.setFromUnitVectors(X_AXIS, target);
+
+    this.light.distance = 1.5 * s;
+
     this.time += delta;
     if (this.time < 1/60) {
       return;
@@ -84,6 +99,7 @@ class Lightning {
     for (var i = 0; i < this.meshes.length; i++) {
       this.meshes[i].visible = i == this.meshIndex / 2;
     }
+
     this.light.intensity = this.intensities[this.meshIndex / 2] || 0.0;
   }
 }

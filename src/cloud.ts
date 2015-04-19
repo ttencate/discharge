@@ -26,15 +26,18 @@ class Cloud {
 
   private spot: THREE.SpotLight;
   private lightning: Lightning;
+  private lightningTarget: THREE.Object3D;
 
   constructor(x: number, z: number, private player: Player, private terrain: Terrain) {
     this.velocity.set(0, 0, -CLOUD_SPEED);
     this.rotationSpeed = CLOUD_ROTATE_SPEED;
 
     this.obj = new THREE.Object3D();
-    this.obj.position.set(x, this.terrain.heightAt(x, z) + CLOUD_HEIGHT, z);
+    this.obj.position.set(x, 0, z);
+    this.obj.position.setY(this.terrain.heightAt(this.obj.position) + CLOUD_HEIGHT);
 
-    cloudMesh = cloudMesh || new THREE.TorusKnotGeometry(10, 7, 50, 8);
+    var size = 10;
+    cloudMesh = cloudMesh || new THREE.TorusKnotGeometry(size, 7, 50, 8);
     cloudMaterial = cloudMaterial || new THREE.MeshPhongMaterial({
       color: 0x370124,
       specular: 0xcf87b5,
@@ -62,9 +65,11 @@ class Cloud {
     light.shadowCameraBottom = -20;
     this.obj.add(light);
 
-    this.lightning = new Lightning(new THREE.Vector3(0, -CLOUD_HEIGHT, 0));
-    this.lightning.setVisible(false);
+    this.lightningTarget = new THREE.Object3D();
+
+    this.lightning = new Lightning(this.lightningTarget);
     this.obj.add(this.lightning.getObject());
+    this.lightning.setVisible(false);
 
     var spotTarget = new THREE.Object3D();
     spotTarget.position.set(0, -100, 0);
@@ -100,7 +105,7 @@ class Cloud {
     v.setLength(CLOUD_SPEED);
     this.rotationSpeed = clamp(-CLOUD_ROTATE_SPEED, CLOUD_ROTATE_SPEED, this.rotationSpeed);
 
-    var h = this.terrain.heightAt(pos.x, pos.z);
+    var h = this.terrain.heightAt(pos);
     v.y = 5.0 * (h + CLOUD_HEIGHT - pos.y);
 
     pos.x += delta * v.x;
@@ -117,7 +122,12 @@ class Cloud {
       case CloudState.CHARGING:
         this.charge += delta / CLOUD_CHARGE_TIME;
         if (this.charge >= 1) {
+          this.lightningTarget.position.copy(this.obj.position);
+          this.lightningTarget.position.y = this.terrain.heightAt(this.obj.position);
+          this.obj.parent.add(this.lightningTarget);
+
           this.lightning.setVisible(true);
+
           this.state = CloudState.DISCHARGING;
           this.charge = 1;
         }

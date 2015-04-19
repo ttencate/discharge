@@ -8,7 +8,7 @@ var SUN_POSITION = new THREE.Vector3(-5, 1, 0);
 var SUN_COLOR = 0xaa9f8f;
 
 var GRAVITY = 9.81;
-var WALK_SPEED = 5.0;
+var WALK_SPEED = 50.0;
 var SLOW_DOWN_FACTOR = 0.8;
 
 var CLOUD_HEIGHT = 50;

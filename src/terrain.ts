@@ -7,7 +7,7 @@ var TILE_SUBDIVISIONS = 64;
 var TILE_VERTS = TILE_SUBDIVISIONS + 1;
 var TILE_DISTANCE = TERRAIN_DISTANCE / TILE_SIZE + 1;
 
-var TREE_PROBABILITY = 0.5;
+var TREE_PROBABILITY = 0.3;
 var MIN_TREES_PER_TILE = 5;
 var MAX_TREES_PER_TILE = 20;
 var MIN_TREE_HEIGHT = 20;
@@ -52,15 +52,15 @@ class Terrain {
     }
   }
 
-  heightAt(x: number, z: number): number {
-    var tx = Math.floor(x / TILE_SIZE);
-    var tz = Math.floor(z / TILE_SIZE);
+  heightAt(pos: THREE.Vector3): number {
+    var tx = Math.floor(pos.x / TILE_SIZE);
+    var tz = Math.floor(pos.z / TILE_SIZE);
     var key = tx + ',' + tz;
     var tile = this.tiles[key];
     if (tile) {
-      return tile.heightAt(x, z);
+      return tile.heightAt(pos);
     } else {
-      return this.terragen.heightAt(x, z);
+      return this.terragen.heightAt(pos.x, pos.z);
     }
   }
 
@@ -148,7 +148,7 @@ class Tile {
         if (closest && closest.distanceTo(treePos) < 2 * TREE_RADIUS) {
           continue;
         }
-        var height = this.heightAt(treePos.x, treePos.z);
+        var height = this.heightAt(treePos);
         var tree = new Tree(treePos.x, height, treePos.z, random.float(MIN_TREE_HEIGHT, MAX_TREE_HEIGHT));
         this.trees.push(tree);
         this.obj.add(tree.getObject());
@@ -166,9 +166,9 @@ class Tile {
     return this.obj;
   }
 
-  heightAt(x: number, z: number): number {
-    x -= this.x;
-    z -= this.z;
+  heightAt(pos: THREE.Vector3): number {
+    var x = pos.x - this.x;
+    var z = pos.z - this.z;
     x = clamp(0, TILE_SUBDIVISIONS, x / TILE_SIZE * TILE_SUBDIVISIONS);
     z = clamp(0, TILE_SUBDIVISIONS, z / TILE_SIZE * TILE_SUBDIVISIONS);
     var ix = Math.floor(x);
