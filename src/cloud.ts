@@ -122,6 +122,7 @@ class Cloud {
           if (this.hitTree && this.hitTree.distanceTo(this.obj.position) < TREE_LIGHTNING_ATTRACTION_RADIUS) {
             this.hitTree.getTop(this.lightningTarget.position);
           } else {
+            this.hitTree = null;
             this.lightningTarget.position.copy(this.obj.position);
             this.lightningTarget.position.y = this.terrain.heightAt(this.obj.position);
           }
@@ -136,7 +137,9 @@ class Cloud {
       case CloudState.DISCHARGING:
         this.charge -= delta / CLOUD_DISCHARGE_TIME;
         if (this.charge <= 0) {
-          this.hitTree.burn();
+          if (this.hitTree) {
+            this.hitTree.burn();
+          }
           this.lightning.setVisible(false);
           this.state = CloudState.COOLDOWN;
           this.cooldown = 1;

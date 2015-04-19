@@ -79,7 +79,7 @@ class Lightning {
     this.obj.parent.worldToLocal(target);
 
     var s = target.length();
-    this.obj.scale.set(s, s, s);
+    this.obj.scale.set(s, 40, 40);
 
     target.normalize();
     this.obj.quaternion.setFromUnitVectors(X_AXIS, target);

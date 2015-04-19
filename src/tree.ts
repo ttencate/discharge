@@ -36,7 +36,7 @@ class Tree {
 
   getTop(out: THREE.Vector3) {
     out.copy(this.obj.position);
-    out.y += this.height;
+    out.y += this.height - 1;
   }
 
   distanceTo(pos: THREE.Vector3): number {
