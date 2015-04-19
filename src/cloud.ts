@@ -89,17 +89,13 @@ class Cloud {
     tmp.copy(this.player.getPosition());
     this.obj.worldToLocal(tmp);
     if (tmp.x > 0) {
-      console.log('left');
       this.obj.rotation.y += delta * CLOUD_TURN_SPEED;
     } else { 
-      console.log('right');
       this.obj.rotation.y -= delta * CLOUD_TURN_SPEED;
     }
     if (tmp.z > 0) {
-      console.log('faster');
       v.z += delta * CLOUD_ACCELERATION;
     } else {
-      console.log('slower');
       v.z -= delta * CLOUD_ACCELERATION;
     }
     v.z = clamp(MIN_CLOUD_SPEED, MAX_CLOUD_SPEED, v.z);

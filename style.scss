@@ -18,6 +18,16 @@ html, body {
   background-color: black;
 }
 
+h1 {
+  font-weight: normal;
+  margin: 0 0 64px;
+  padding: 0;
+  letter-spacing: 8px;
+  font-size: 64px;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+
 #canvas {
   position: absolute;
   left: 0;
@@ -69,6 +79,11 @@ html, body {
   font-size: 32px;
   line-height: 48px;
   text-shadow: 0 0 8px #fff;
+}
+
+.dim {
+  color: #aa9f8f;
+  text-shadow: 0 0 8px #aa8c64;
 }
 
 @include keyframes(blink) {
