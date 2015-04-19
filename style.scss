@@ -79,11 +79,18 @@ h1 {
   font-size: 32px;
   line-height: 48px;
   text-shadow: 0 0 8px #fff;
+  padding: 0 10%;
 }
 
 .dim {
   color: #aa9f8f;
   text-shadow: 0 0 8px #aa8c64;
+  font-size: 75%;
+}
+
+p {
+  margin: 0;
+  padding: 0;
 }
 
 @include keyframes(blink) {
