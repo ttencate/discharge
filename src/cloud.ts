@@ -46,11 +46,11 @@ class Cloud {
     this.obj.add(this.mesh);
 
     var light = new THREE.DirectionalLight(SUN_COLOR, 1.0);
-    light.position.copy(SUN_POSITION).multiplyScalar(5.0);
+    light.position.set(0, 1, 0).multiplyScalar(5.0);
     light.target = this.mesh;
     light.castShadow = true;
     light.onlyShadow = true;
-    light.shadowDarkness = 0.8;
+    light.shadowDarkness = 0.6;
     light.shadowCameraNear = 0.1;
     light.shadowCameraFar = 1000;
     light.shadowCameraLeft = -20;
@@ -112,13 +112,13 @@ class Cloud {
           var height = this.terrain.heightAt(this.obj.position);
           if (this.hitTree && this.hitTree.distanceTo(this.obj.position) < TREE_LIGHTNING_ATTRACTION_RADIUS) {
             this.hitTree.getTop(this.lightningTarget.position);
-            this.terrain.addSmoke(new Smoke(this.hitTree.getPosition().x, height, this.hitTree.getPosition().z, TREE_RADIUS, this.hitTree.getHeight(), 200, 0x0f000a));
+            this.terrain.addSmoke(new Smoke(this.hitTree.getPosition().x, height, this.hitTree.getPosition().z, TREE_RADIUS, this.hitTree.getHeight(), 500, 0x0f000a));
           } else {
             this.hitTree = null;
             this.lightningTarget.position.copy(this.obj.position);
             this.lightningTarget.position.y = height;
           }
-          this.terrain.addSmoke(new Smoke(this.lightningTarget.position.x, height, this.lightningTarget.position.z, LIGHTNING_DEADLY_DISTANCE, 1, 200, 0x0f000a));
+          this.terrain.addSmoke(new Smoke(this.lightningTarget.position.x, height, this.lightningTarget.position.z - 2, LIGHTNING_DEADLY_DISTANCE, 3, 500, 0x0f000a));
           this.obj.parent.add(this.lightningTarget);
 
           this.lightning.setVisible(true);

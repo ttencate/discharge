@@ -88,7 +88,7 @@ class Path {
       w.ping();
       this.obj.remove(w.getObject());
       this.index++;
-      window.location.hash = '#' + this.index;
+      // window.location.hash = '#' + this.index;
       if (this.waypoints[this.index]) {
         this.obj.add(this.waypoints[this.index].getObject());
       }
