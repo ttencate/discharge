@@ -19,7 +19,6 @@ class Cloud {
   private charge: number = 0;
   private cooldown: number = 0;
 
-  private spot: THREE.SpotLight;
   private lightning: Lightning;
   private lightningTarget: THREE.Object3D;
   private hitTree: Tree;
@@ -65,17 +64,6 @@ class Cloud {
     this.lightning = new Lightning(this.lightningTarget);
     this.obj.add(this.lightning.getObject());
     this.lightning.setVisible(false);
-
-    var spotTarget = new THREE.Object3D();
-    spotTarget.position.set(0, -100, 0);
-    this.obj.add(spotTarget);
-
-    this.spot = new THREE.SpotLight(0xffffff, 2.0);
-    this.spot.position.set(0, -10, 0);
-    this.spot.target = spotTarget;
-    this.spot.angle = 0.3 * Math.PI/2;
-    this.spot.exponent = 100.0;
-    this.obj.add(this.spot);
   }
 
   getObject(): THREE.Object3D {
@@ -155,8 +143,6 @@ class Cloud {
     this.mesh.rotation.z += delta * CLOUD_ROTATE_SPEED;
     var scale = 0.6 + 0.6 * this.charge;
     this.mesh.scale.set(1, 1, scale);
-
-    this.spot.intensity = 1.5 + Math.random();
 
     this.lightning.update(delta);
   }
