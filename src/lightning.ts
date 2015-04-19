@@ -1,7 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-const X_AXIS = new THREE.Vector3(1, 0, 0);
-
 function displace(points: THREE.Vector3[], start: number, end: number, offset: number) {
   if (end - start < 2) {
     return;

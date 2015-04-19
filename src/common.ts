@@ -30,6 +30,9 @@ var LIGHTNING_DEADLY_DISTANCE = 5.0;
 var WAYPOINT_RADIUS = 10.0;
 
 var PI_2 = Math.PI / 2;
+const X_AXIS = new THREE.Vector3(1, 0, 0);
+const Y_AXIS = new THREE.Vector3(0, 1, 0);
+const Z_AXIS = new THREE.Vector3(0, 0, 1);
 
 function k(s: string): number {
   return s.charCodeAt(0);

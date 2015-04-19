@@ -55,6 +55,11 @@ class Path {
     this.waypoints.push(w);
   }
 
+  currentWaypoint(): Waypoint {
+    if (this.waypoints.length == 0) return null;
+    return this.waypoints[0];
+  }
+
   update(delta: number) {
     if (this.waypoints.length > 0) {
       var w = this.waypoints[0];

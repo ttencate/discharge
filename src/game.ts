@@ -1,6 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="cloud.ts" />
 /// <reference path="common.ts" />
+/// <reference path="hud.ts" />
 /// <reference path="player.ts" />
 /// <reference path="sky.ts" />
 /// <reference path="terrain.ts" />
@@ -16,6 +17,7 @@ class Game {
   private player: Player;
   private clouds: Cloud[] = [];
   private path: Path;
+  private hud: HUD;
 
   constructor() {
     this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, NEAR_PLANE, CAMERA_DISTANCE);
@@ -50,6 +52,9 @@ class Game {
     this.path.addWaypoint(50, -50);
     this.scene.add(this.path.getObject());
 
+    this.hud = new HUD(this.path);
+    this.camera.add(this.hud.getObject());
+
     this.update(0);
   }
 
@@ -74,6 +79,7 @@ class Game {
     this.player.update(delta);
     this.path.update(delta);
     this.sky.update();
+    this.hud.update(delta);
   }
 
   getScene(): THREE.Scene {
