@@ -11,6 +11,9 @@ enum SeedState {
   GONE
 }
 
+var seedMesh;
+var seedMaterial;
+
 class Seed {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
@@ -27,12 +30,12 @@ class Seed {
   constructor(private terrain: Terrain) {
     this.obj = new THREE.Object3D();
 
-    this.mesh = new THREE.Mesh(
-        new THREE.OctahedronGeometry(2.0, 0),
-        new THREE.MeshPhongMaterial({
-          color: 0xbd73a3,
-          shading: THREE.FlatShading,
-        }));
+    seedMesh = seedMesh || new THREE.OctahedronGeometry(2.0, 0);
+    seedMaterial = seedMaterial || new THREE.MeshPhongMaterial({
+      color: 0xbd73a3,
+      shading: THREE.FlatShading,
+    });
+    this.mesh = new THREE.Mesh(seedMesh, seedMaterial);
     this.obj.add(this.mesh);
 
     this.pickUp = new THREE.Audio(audioListener);

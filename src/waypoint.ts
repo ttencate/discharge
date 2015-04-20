@@ -1,6 +1,9 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
 
+var waypointGeometry;
+var waypointMaterial;
+
 class Waypoint {
   private obj: THREE.Object3D;
   private sound: THREE.Audio;
@@ -12,16 +15,16 @@ class Waypoint {
     this.obj.position.copy(player.getPosition());
     this.nextPosition();
 
-    var mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(WAYPOINT_RADIUS, WAYPOINT_RADIUS, 20, 24, 1, true),
-        new THREE.MeshPhongMaterial({
-          emissive: 0xaa1700,
-          transparent: true,
-          opacity: 0.5,
-          side: THREE.DoubleSide,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending,
-        }));
+    waypointGeometry = waypointGeometry || new THREE.CylinderGeometry(WAYPOINT_RADIUS, WAYPOINT_RADIUS, 20, 24, 1, true),
+    waypointMaterial = waypointMaterial || new THREE.MeshPhongMaterial({
+      emissive: 0xaa1700,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    var mesh = new THREE.Mesh(waypointGeometry, waypointMaterial);
     mesh.position.y = -5;
     this.obj.add(mesh);
 

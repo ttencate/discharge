@@ -44,8 +44,11 @@ class Terrain {
     }
 
     for (key in prevTiles) {
-      prevTiles[key].destroy();
+      var tile = prevTiles[key];
+      tile.getObject().parent.remove(tile.getObject());
+      tile.dispose();
     }
+    prevTiles = null;
 
     for (var i = 0; i < this.smokes.length; i++) {
       var smoke = this.smokes[i];
@@ -53,6 +56,7 @@ class Terrain {
       if (smoke.isExpired()) {
         this.scene.remove(smoke.getObject());
         this.smokes.splice(i, 1);
+        smoke.dispose();
         i--;
       }
     }
@@ -110,8 +114,11 @@ class Terrain {
   }
 }
 
+var terrainMaterial;
+
 class Tile {
   private obj: THREE.Object3D;
+  private geometry: THREE.Geometry;
   private mesh: THREE.Mesh;
   private heightmap: Float64Array;
   private x: number;
@@ -132,8 +139,8 @@ class Tile {
       }
     }
 
-    var geo = new THREE.PlaneGeometry(TILE_SIZE, TILE_SIZE, TILE_SUBDIVISIONS, TILE_SUBDIVISIONS);
-    var verts = geo.vertices;
+    this.geometry = new THREE.PlaneGeometry(TILE_SIZE, TILE_SIZE, TILE_SUBDIVISIONS, TILE_SUBDIVISIONS);
+    var verts = this.geometry.vertices;
     for (var z = 0; z < TILE_VERTS; z++) {
       for (var x = 0; x < TILE_VERTS; x++) {
         verts[x + TILE_VERTS * z].set(
@@ -142,15 +149,15 @@ class Tile {
             z / TILE_SUBDIVISIONS * TILE_SIZE);
       }
     }
-    geo.verticesNeedUpdate = true;
-    geo.computeFaceNormals();
-    geo.dynamic = false;
+    this.geometry.verticesNeedUpdate = true;
+    this.geometry.computeFaceNormals();
+    this.geometry.dynamic = false;
 
-    var terrainMaterial = new THREE.MeshLambertMaterial({
+    terrainMaterial = terrainMaterial || new THREE.MeshLambertMaterial({
       color: 0xaa7a39,
       shading: THREE.FlatShading,
     });
-    this.mesh = new THREE.Mesh(geo, terrainMaterial);
+    this.mesh = new THREE.Mesh(this.geometry, terrainMaterial);
     this.mesh.position.x = this.x;
     this.mesh.position.z = this.z;
     this.mesh.receiveShadow = true;
@@ -179,10 +186,8 @@ class Tile {
     this.obj.add(tree.getObject());
   }
 
-  destroy() {
-    if (this.obj.parent) {
-      this.obj.parent.remove(this.obj);
-    }
+  dispose() {
+    this.geometry.dispose();
   }
 
   getObject(): THREE.Object3D {

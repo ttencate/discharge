@@ -2,10 +2,15 @@
 /// <reference path="seed.ts" />
 /// <reference path="sound.ts" />
 
+var treeGeometry;
+var treeMaterial;
+var treeSounds;
+var burntGeometry;
+var burntMaterial;
+
 class Tree {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
-  private sounds: THREE.Audio[] = [];
   private burnt: boolean;
   private seed: Seed;
 
@@ -13,22 +18,24 @@ class Tree {
     this.obj = new THREE.Object3D();
     this.obj.position.set(x, y, z);
 
-    var treeMesh = new THREE.CylinderGeometry(TREE_RADIUS/4, TREE_RADIUS, 1, 12, 1);
-    var treeMaterial = new THREE.MeshPhongMaterial({
+    treeGeometry = treeGeometry || new THREE.CylinderGeometry(TREE_RADIUS/4, TREE_RADIUS, 1, 12, 1);
+    treeMaterial = treeMaterial || new THREE.MeshPhongMaterial({
       color: young ? 0xbd73a3 : 0x4f0937,
       shading: THREE.FlatShading,
     });
-    this.mesh = new THREE.Mesh(treeMesh, treeMaterial);
+    this.mesh = new THREE.Mesh(treeGeometry, treeMaterial);
     this.mesh.scale.y = height + 2;
     this.mesh.position.y = height/2 - 1;
     this.obj.add(this.mesh);
 
-    for (var i = 0; i < 3; i++) {
-      var sound = new THREE.Audio(audioListener);
-      sound.load('boom' + (i+1) + '.ogg');
-      sound.setRefDistance(100);
-      this.sounds.push(sound);
-      this.obj.add(sound);
+    if (!treeSounds) {
+      treeSounds = [];
+      for (var i = 0; i < 3; i++) {
+        var sound = new THREE.Audio(audioListener);
+        sound.load('boom' + (i+1) + '.ogg');
+        sound.setRefDistance(100);
+        treeSounds.push(sound);
+      }
     }
   }
 
@@ -61,15 +68,19 @@ class Tree {
 
   burn() {
     this.burnt = true;
-    play(this.sounds[Math.floor(Math.random() * 3)]);
+
+    var sound = treeSounds[Math.floor(Math.random() * 3)];
+    this.obj.add(sound);
+    play(sound);
+
     this.obj.remove(this.mesh);
 
-    var burntMesh = new THREE.CylinderGeometry(TREE_RADIUS * 0.97, TREE_RADIUS, 4, 12, 1);
-    var burntMaterial = new THREE.MeshPhongMaterial({
+    burntGeometry = burntGeometry || new THREE.CylinderGeometry(TREE_RADIUS * 0.97, TREE_RADIUS, 4, 12, 1);
+    burntMaterial = burntMaterial || new THREE.MeshPhongMaterial({
       color: 0x220016,
       shading: THREE.FlatShading,
     });
-    this.mesh = new THREE.Mesh(burntMesh, burntMaterial);
+    this.mesh = new THREE.Mesh(burntGeometry, burntMaterial);
     this.obj.add(this.mesh);
 
     if (!this.young) {

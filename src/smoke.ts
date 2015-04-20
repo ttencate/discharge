@@ -2,6 +2,8 @@
 
 var SMOKE_TIME = 2;
 
+var smokeTexture;
+
 class Smoke {
   private obj: THREE.Object3D;
   private time: number = 0;
@@ -26,8 +28,9 @@ class Smoke {
       this.v.push(v);
     }
 
+    smokeTexture = smokeTexture || THREE.ImageUtils.loadTexture('smoke.png');
     this.material = new THREE.PointCloudMaterial({
-      map: THREE.ImageUtils.loadTexture('smoke.png'),
+      map: smokeTexture,
       size: 1.0,
       color: c,
       transparent: true,
@@ -37,6 +40,11 @@ class Smoke {
 
     var cloud = new THREE.PointCloud(this.geometry, this.material);
     this.obj.add(cloud);
+  }
+
+  dispose() {
+    this.geometry.dispose();
+    this.material.dispose();
   }
 
   getObject(): THREE.Object3D {

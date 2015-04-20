@@ -100,6 +100,10 @@ function resize() {
   game.resize(w, h);
 }
 
+window.setInterval(function() {
+  console.log(renderer.info.memory);
+}, 1000);
+
 var clock = new THREE.Clock();
 function render() {
   var delta = clock.getDelta();

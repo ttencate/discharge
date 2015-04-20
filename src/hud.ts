@@ -1,6 +1,9 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="waypoint.ts" />
 
+var markerGeometry;
+var markerMaterial;
+
 class HUD {
   private obj: THREE.Object3D;
   private arrow: THREE.Object3D;
@@ -62,17 +65,17 @@ class HUD {
       this.markers = [];
 
       for (var i = 0; i < cnt; i++) {
-        var marker = new THREE.Mesh(
-            new THREE.SphereGeometry(0.005),
-            new THREE.MeshPhongMaterial({
-              emissive: 0xaa1700,
-              transparent: true,
-              opacity: 0.5,
-              side: THREE.DoubleSide,
-              depthWrite: false,
-              depthTest: false,
-              blending: THREE.AdditiveBlending,
-            }));
+        markerGeometry = markerGeometry || new THREE.SphereGeometry(0.005);
+        markerMaterial = markerMaterial || new THREE.MeshPhongMaterial({
+          emissive: 0xaa1700,
+          transparent: true,
+          opacity: 0.5,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+          depthTest: false,
+          blending: THREE.AdditiveBlending,
+        });
+        var marker = new THREE.Mesh(markerGeometry, markerMaterial);
         marker.position.set(0.02 * (i - (cnt-1)/2), -0.18, 0);
         this.obj.add(marker);
         this.markers.push(marker);

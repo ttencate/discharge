@@ -10,6 +10,9 @@ enum CloudState {
   COOLDOWN,
 }
 
+var cloudMesh;
+var cloudMaterial;
+
 class Cloud {
   private obj: THREE.Object3D;
   private mesh: THREE.Mesh;
@@ -33,8 +36,8 @@ class Cloud {
     this.obj.position.setY(this.terrain.heightAt(this.obj.position) + CLOUD_HEIGHT);
 
     var size = 10;
-    var cloudMesh = new THREE.TorusKnotGeometry(size, 7, 50, 8);
-    var cloudMaterial = new THREE.MeshPhongMaterial({
+    cloudMesh = cloudMesh || new THREE.TorusKnotGeometry(size, 7, 50, 8);
+    cloudMaterial = cloudMaterial || new THREE.MeshPhongMaterial({
       color: 0x370124,
       specular: 0xcf87b5,
       emissive: 0x370124,

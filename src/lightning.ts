@@ -15,6 +15,8 @@ function displace(points: THREE.Vector3[], start: number, end: number, offset: n
   displace(points, mid, end, offset/2);
 }
 
+var lightningMaterial;
+
 class Lightning {
   private obj: THREE.Object3D;
   private meshes: THREE.Mesh[] = [];
@@ -39,16 +41,15 @@ class Lightning {
 
       var tube = new THREE.TubeGeometry(<any>new THREE.SplineCurve3(points), N, 0.04, 8, false);
       tube.computeVertexNormals();
-      var mesh = new THREE.Mesh(
-          tube,
-          new THREE.ShaderMaterial({
-            vertexShader: document.getElementById('lightning-vertex').textContent,
-            fragmentShader: document.getElementById('lightning-fragment').textContent,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-            transparent: true,
-            depthWrite: false,
-          }));
+      lightningMaterial = lightningMaterial || new THREE.ShaderMaterial({
+        vertexShader: document.getElementById('lightning-vertex').textContent,
+        fragmentShader: document.getElementById('lightning-fragment').textContent,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false,
+      });
+      var mesh = new THREE.Mesh(tube, lightningMaterial);
       mesh.visible = false;
       this.meshes[i] = mesh;
       this.obj.add(mesh);
